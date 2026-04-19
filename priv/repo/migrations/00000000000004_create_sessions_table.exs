@@ -1,0 +1,16 @@
+defmodule EzAuth.Migrations.CreateSessionsTable do
+  use Ecto.Migration
+
+  def change do
+    create table(:sessions, prefix: "auth") do
+      add :user_id, references(:users, prefix: "auth", on_delete: :delete_all), null: false
+      add :token, :binary, null: false
+      add :expires_at, :utc_datetime, null: false
+
+      timestamps(type: :utc_datetime)
+    end
+
+    create unique_index(:sessions, [:token], prefix: "auth")
+    create index(:sessions, [:user_id], prefix: "auth")
+  end
+end

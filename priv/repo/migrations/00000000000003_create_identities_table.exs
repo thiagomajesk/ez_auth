@@ -1,0 +1,21 @@
+defmodule EzAuth.Migrations.CreateIdentitiesTable do
+  use Ecto.Migration
+
+  def change do
+    create table(:identities, prefix: "auth") do
+      add :user_id, references(:users, prefix: "auth", on_delete: :delete_all), null: false
+      add :type, :string, null: false
+      add :value, :citext, null: false
+      add :verified_at, :utc_datetime
+
+      timestamps(type: :utc_datetime)
+    end
+
+    create unique_index(:identities, [:type, :value],
+             prefix: "auth",
+             where: "verified_at IS NOT NULL"
+           )
+
+    create index(:identities, [:user_id], prefix: "auth")
+  end
+end

@@ -1,0 +1,19 @@
+defmodule EzAuth.Migrations.CreateVerificationsTable do
+  use Ecto.Migration
+
+  def change do
+    create table(:verifications, prefix: "auth") do
+      add :user_id, references(:users, prefix: "auth", on_delete: :delete_all), null: false
+      add :type, :string, null: false
+      add :token, :string, null: false
+      add :value, :string
+      add :expires_at, :utc_datetime, null: false
+
+      timestamps(type: :utc_datetime, updated_at: false)
+    end
+
+    create unique_index(:verifications, [:token], prefix: "auth")
+    create index(:verifications, [:user_id, :type], prefix: "auth")
+    create unique_index(:verifications, [:user_id, :type, :value], prefix: "auth")
+  end
+end
