@@ -110,13 +110,13 @@ defmodule EzAuth.UI.SignUp do
      socket
      |> assign(assigns)
      |> assign_new(:strategies, &Config.strategies/0)
-     |> assign_new(:form, fn -> to_form(sign_up_changeset(%{}), as: nil) end)}
+     |> assign_new(:form, fn -> to_form(sign_up_changeset(%{})) end)}
   end
 
   @impl true
   def handle_event("change", %{"user" => user_params}, socket) do
     changeset = sign_up_changeset(user_params)
-    {:noreply, assign(socket, :form, to_form(changeset, as: nil))}
+    {:noreply, assign(socket, :form, to_form(changeset))}
   end
 
   def handle_event("submit", %{"user" => user_params}, socket) do
@@ -127,7 +127,7 @@ defmodule EzAuth.UI.SignUp do
         {:noreply, assign(socket, :trigger_action, true)}
 
       {:error, changeset} ->
-        {:noreply, assign(socket, :form, to_form(changeset, as: nil))}
+        {:noreply, assign(socket, :form, to_form(changeset))}
     end
   end
 
