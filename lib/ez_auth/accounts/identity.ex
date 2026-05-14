@@ -62,4 +62,17 @@ defmodule EzAuth.Accounts.Identity do
       where: not is_nil(i.verified_at)
     )
   end
+
+  @doc """
+  Detects which identity (`:email | :phone | nil`) a typed value looks like,
+  restricted to the `accepts` list. Naive shape match for UX feedback only.
+  """
+  def detect_identity(value, accepts) when is_binary(value) do
+    patterns = %{email: ~r/@/, phone: ~r/^[+\d]/}
+
+    Enum.find_value(accepts, fn identity ->
+      pattern = patterns[identity]
+      if pattern && value =~ pattern, do: identity
+    end)
+  end
 end

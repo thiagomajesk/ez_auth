@@ -20,4 +20,8 @@ defmodule Storybook.InputHelpers do
   # Returns a placeholder `%EzAuth.Accounts.User{}` for variations that
   # need a user attribute, without dumping the full struct into the docs.
   def sample_user, do: %EzAuth.Accounts.User{}
+
+  # Builds an empty form with the `:user` namespace, used by stories that
+  # need to pass a `:form` attribute without dumping the whole struct.
+  def sample_form, do: Phoenix.Component.to_form(%{}, as: :user)
 end

@@ -206,49 +206,58 @@ defmodule EzAuth.UI.Core.Inputs do
 
   @doc """
   Renders a polymorphic identity input that adapts label, type, inputmode, and
-  autocomplete to whichever identity it is currently being used for.
+  autocomplete to whichever identity is currently active.
 
-  The active identity is the caller's responsibility — pass it via `:identity`,
-  typically computed in the parent's `phx-change` handler. The underlying input
-  carries `phx-debounce="150"` so the parent fires throttled.
+  Detection is the caller's responsibility — pass the active atom via `:identity`
+  (typically computed from `EzAuth.Accounts.Identity.detect_identity/2` in the
+  parent's `phx-change` handler). The underlying input carries `phx-debounce="150"`
+  so the parent's change handler fires throttled. Before any identity is detected,
+  the input's `name=` is the literal `"_identity"` (underscore-prefixed like
+  Phoenix's `_target`), so submissions in the not-yet-detected state aren't
+  treated as real form fields.
 
   ## Options
 
-    * `:identity` - the active identity (`:email | :phone | nil`). Drives the
-      input's type, inputmode, autocomplete, and label.
-    * `:accepts` - identity types this input can adapt to. A subset of
-      `[:email, :phone]`. Defaults to `[:email]`. Used to compose the label
-      when no identity is active yet.
-    * `:field` - form field to bind value/errors to. Optional; when given,
-      the input pulls value and errors from the form.
-
-  ## Styling
-
-    * Uses the same `data-part` attributes as `input/1`.
+    * `:form` - the form to derive `name=` from once an identity is detected (required).
+    * `:identity` - the active identity (`:email | :phone | nil`). Defaults to `nil`.
+    * `:accepts` - identity types this input can adapt to. Defaults to `[:email]`.
+    * `:field` - form field to bind value/errors to. Optional.
+    * `:value` - current typed value. Optional.
 
   ## Examples
 
-      <EzAuth.UI.Core.Inputs.poly identity={@detected} field={@form[@detected]} />
+      <EzAuth.UI.Core.Inputs.identity form={@form} identity={@detected} accepts={[:email, :phone]} />
   """
   attr(:id, :string, required: true)
-  attr(:identity, :atom, default: nil)
+  attr(:form, Form, required: true)
+  attr(:identity, :atom, required: true)
   attr(:accepts, :list, default: [:email])
-  attr(:field, FormField, default: nil)
   attr(:value, :string, default: nil)
   attr(:rest, :global)
 
-  def poly(assigns) do
+  def identity(assigns) do
+    assigns =
+      assigns
+      |> assign_new(:type, &identity_type(&1.identity))
+      |> assign_new(:name, &identity_name(&1.form, &1.identity))
+      |> assign_new(:label, &identity_label(&1.identity, &1.accepts))
+      |> assign_new(:autocomplete, &identity_autocomplete(&1.identity))
+
     ~H"""
+    <input
+      :if={@identity}
+      type="hidden"
+      name={@name}
+      value={@value}
+    />
     <.input
       id={@id}
-      field={@field}
+      name="_identity"
       value={@value}
-      name="identity"
-      phx-debounce="150"
-      type={poly_type(@identity)}
-      inputmode={poly_type(@identity)}
-      autocomplete={poly_autocomplete(@identity)}
-      label={poly_label(@identity, @accepts)}
+      type={@type}
+      inputmode={@type}
+      label={@label}
+      autocomplete={@autocomplete}
       {@rest}
     />
     """
@@ -384,19 +393,22 @@ defmodule EzAuth.UI.Core.Inputs do
   defp inputmode(:numeric), do: "numeric"
   defp inputmode(:alphanumeric), do: "text"
 
-  defp poly_type(nil), do: "text"
-  defp poly_type(:email), do: "email"
-  defp poly_type(:phone), do: "tel"
+  defp identity_name(_form, nil), do: nil
+  defp identity_name(form, identity), do: Form.input_name(form, identity)
 
-  defp poly_autocomplete(nil), do: "off"
-  defp poly_autocomplete(:email), do: "email"
-  defp poly_autocomplete(:phone), do: "tel"
+  defp identity_type(nil), do: "text"
+  defp identity_type(:email), do: "email"
+  defp identity_type(:phone), do: "tel"
 
-  defp poly_label(nil, []), do: nil
-  defp poly_label(nil, [:email]), do: translate("Email")
-  defp poly_label(nil, [:phone]), do: translate("Phone")
-  defp poly_label(nil, [:email, :phone]), do: translate("Email or phone")
-  defp poly_label(nil, [:phone, :email]), do: translate("Email or phone")
-  defp poly_label(:email, _accepts), do: translate("Continue with email")
-  defp poly_label(:phone, _accepts), do: translate("Continue with phone")
+  defp identity_autocomplete(nil), do: "off"
+  defp identity_autocomplete(:email), do: "email"
+  defp identity_autocomplete(:phone), do: "tel"
+
+  defp identity_label(nil, []), do: nil
+  defp identity_label(nil, [:email]), do: translate("Email")
+  defp identity_label(nil, [:phone]), do: translate("Phone")
+  defp identity_label(nil, [:email, :phone]), do: translate("Email or phone")
+  defp identity_label(nil, [:phone, :email]), do: translate("Email or phone")
+  defp identity_label(:email, _accepts), do: translate("Continue with email")
+  defp identity_label(:phone, _accepts), do: translate("Continue with phone")
 end

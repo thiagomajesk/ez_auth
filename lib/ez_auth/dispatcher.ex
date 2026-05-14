@@ -10,9 +10,9 @@ defmodule EzAuth.Dispatcher do
 
   plug(:check_strategy when action in [:request, :callback])
 
-  def request(conn, params), do: dispatch(conn, params, :request)
+  def request(conn, %{"user" => user_params}), do: dispatch(conn, user_params, :request)
 
-  def callback(conn, params), do: dispatch(conn, params, :callback)
+  def callback(conn, %{"user" => user_params}), do: dispatch(conn, user_params, :callback)
 
   defp dispatch(conn, params, action) do
     %{strategy: strategy, handler: handler} = conn.private.ez_auth
@@ -26,10 +26,10 @@ defmodule EzAuth.Dispatcher do
     end
   end
 
-  def sign_up(conn, params) do
+  def sign_up(conn, %{"user" => user_params}) do
     %{handler: handler} = conn.private.ez_auth
 
-    case EzAuth.Accounts.create_user_with_password(params) do
+    case EzAuth.Accounts.create_user_with_password(user_params) do
       {:ok, {user, identity}} ->
         EzAuth.Accounts.request_email_verification(identity)
         Handler.maybe_invoke(conn, handler, :handle_success, [:sign_up, user])

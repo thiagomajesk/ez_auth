@@ -24,6 +24,7 @@ defmodule EzAuth.UI.SignIn do
 
   import EzAuth.Translations, only: [translate: 1]
 
+  alias EzAuth.Accounts.Identity
   alias EzAuth.Accounts.User
   alias EzAuth.Config
   alias EzAuth.Strategy
@@ -58,11 +59,11 @@ defmodule EzAuth.UI.SignIn do
           trigger_action={@trigger_action}
           myself={@myself}
         >
-          <Inputs.poly
+          <Inputs.identity
             id={"#{@id}-identity"}
-            accepts={inputable_identities(@strategies)}
+            form={@form}
             identity={@detected}
-            field={@detected && @form[@detected]}
+            accepts={inputable_identities(@strategies)}
             value={@identity}
           />
 
@@ -119,8 +120,8 @@ defmodule EzAuth.UI.SignIn do
      socket
      |> assign(:identity, nil)
      |> assign(:detected, nil)
-     |> assign(:trigger_action, false)
-     |> assign(:recovery, false)}
+     |> assign(:recovery, false)
+     |> assign(:trigger_action, false)}
   end
 
   @impl true
@@ -129,25 +130,19 @@ defmodule EzAuth.UI.SignIn do
      socket
      |> assign(assigns)
      |> assign_new(:strategies, &Config.strategies/0)
-     |> assign_new(:form, fn -> to_form(%{}, as: nil) end)}
+     |> assign_new(:form, fn -> to_form(%{}, as: :user) end)}
   end
 
   @impl true
-  def handle_event("change", %{"identity" => identity} = params, socket) do
+  def handle_event("change", %{"_identity" => value}, socket) do
     %{strategies: strategies} = socket.assigns
     available_identities = inputable_identities(strategies)
-    detected = detect_identity(identity, available_identities)
-
-    changeset =
-      params
-      |> normalize_params(detected)
-      |> sign_in_changeset(detected, strategies)
+    detected = Identity.detect_identity(value, available_identities)
 
     {:noreply,
      socket
-     |> assign(:identity, identity)
-     |> assign(:detected, detected)
-     |> assign(:form, to_form(changeset, as: nil))}
+     |> assign(:identity, value)
+     |> assign(:detected, detected)}
   end
 
   def handle_event("forgot-password", _params, socket),
@@ -156,23 +151,16 @@ defmodule EzAuth.UI.SignIn do
   def handle_event("cancel-recovery", _params, socket),
     do: {:noreply, assign(socket, :recovery, false)}
 
-  def handle_event("submit", %{"identity" => identity} = params, socket) do
+  def handle_event("submit", %{"user" => user_params}, socket) do
     %{strategies: strategies, detected: detected} = socket.assigns
-
-    changeset =
-      params
-      |> normalize_params(detected)
-      |> sign_in_changeset(detected, strategies)
+    changeset = sign_in_changeset(user_params, detected, strategies)
 
     case Ecto.Changeset.apply_action(changeset, :validate) do
       {:ok, _} ->
         {:noreply, assign(socket, :trigger_action, true)}
 
       {:error, changeset} ->
-        {:noreply,
-         socket
-         |> assign(:identity, identity)
-         |> assign(:form, to_form(changeset, as: nil, action: :validate))}
+        {:noreply, assign(socket, :form, to_form(changeset, action: :validate))}
     end
   end
 
@@ -228,23 +216,5 @@ defmodule EzAuth.UI.SignIn do
     if Enum.any?(strategies, &(&1.__meta__(:kind) == :credential)),
       do: User.sign_in_with_password_changeset(attrs),
       else: User.sign_in_with_email_changeset(attrs)
-  end
-
-  defp normalize_params(params, detected) do
-    key = detected || "identity"
-    user = Map.get(params, "user", %{})
-    Map.put(user, to_string(key), params["identity"])
-  end
-
-  # This code is purposefully naive — it's about UX feedback, not validation.
-  # We only check what looks like an email or phone to guide the user because
-  # validating here would punish them before they know what needs to be typed.
-  defp detect_identity(value, available) when is_binary(value) do
-    detection_patterns = %{email: ~r/@/, phone: ~r/^[+\d]/}
-
-    Enum.find_value(available, fn identity ->
-      pattern = detection_patterns[identity]
-      if pattern && value =~ pattern, do: identity
-    end)
   end
 end

@@ -28,7 +28,7 @@ defmodule EzAuth.UI.SignUpTest do
           [:email, :password]
         )
 
-      form = Phoenix.Component.to_form(changeset, as: nil)
+      form = Phoenix.Component.to_form(changeset)
 
       html = render_component(SignUp, id: "sign-up", form: form)
 
@@ -36,7 +36,7 @@ defmodule EzAuth.UI.SignUpTest do
       assert html =~ ~s(value="secret123")
     end
 
-    test "preserves field values across change events (params come nested under 'user')" do
+    test "preserves field values across change events" do
       stub_config(strategies: [Strategies.Password])
       stub(EzAuth.Accounts, :email_taken?, fn _ -> false end)
 
@@ -55,6 +55,15 @@ defmodule EzAuth.UI.SignUpTest do
 
       assert form[:email].value == "user@example.com"
       assert form[:password].value == "secret123"
+    end
+
+    test "renders schema-namespaced field names so the server can unwrap params" do
+      stub_config(strategies: [Strategies.Password])
+
+      html = render_component(SignUp, id: "sign-up")
+
+      assert html =~ ~s(name="user[email]")
+      assert html =~ ~s(name="user[password]")
     end
 
     test "omits the form section when Password is not enabled" do
