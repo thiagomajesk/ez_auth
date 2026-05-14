@@ -22,8 +22,7 @@ defmodule EzAuth.ConfigTest do
       for {fun, key} <- [
             {&Config.repo!/0, :repo},
             {&Config.sender!/0, :sender},
-            {&Config.endpoint!/0, :endpoint},
-            {&Config.router!/0, :router}
+            {&Config.endpoint!/0, :endpoint}
           ] do
         with_env(key, nil)
 

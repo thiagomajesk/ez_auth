@@ -57,15 +57,11 @@ defmodule EzAuth.Config do
 
   def repo!, do: env!(:repo, :atom)
 
-  def router!, do: env!(:router, :atom)
-
   def sender!, do: env!(:sender, :atom)
 
   def session_validity_in_minutes, do: env(:session_validity_in_minutes, :integer, 20_160)
 
   def sign_in_path, do: env(:sign_in_path, :string, "/sign-in")
-
-  def sign_up_path, do: routes().ez_auth_sign_up_path(endpoint!(), :sign_up)
 
   def strategy_enabled?(strategy), do: strategy in strategies()
 
@@ -91,8 +87,6 @@ defmodule EzAuth.Config do
   def strategies, do: env(:strategies, :list, [])
 
   def token_rand_size, do: env(:token_rand_size, :integer, 32)
-
-  defp routes, do: Module.concat(router!(), Helpers)
 
   defp env(key, type, default \\ nil) do
     case Application.get_env(:ez_auth, key) do

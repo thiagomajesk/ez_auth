@@ -98,7 +98,7 @@ defmodule EzAuth.UI.Core do
 
       <EzAuth.UI.Core.auth_form
         form={@form}
-        action={Config.sign_up_path()}
+        action="/auth/sign-up"
         trigger_action={@trigger_action}
         myself={@myself}
       >

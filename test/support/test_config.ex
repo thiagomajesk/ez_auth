@@ -18,11 +18,9 @@ defmodule EzAuth.TestConfig do
     recovery_code_length
     recovery_code_validity_in_minutes
     repo!
-    router!
     sender!
     session_validity_in_minutes
     sign_in_path
-    sign_up_path
     strategies
     token_rand_size
     username_format
@@ -34,11 +32,9 @@ defmodule EzAuth.TestConfig do
     repo: EzAuth.TestRepo,
     sender: EzAuth.Test.Sender,
     endpoint: EzAuth.Test.Endpoint,
-    router: EzAuth.Test.Endpoint,
     gettext_backend: nil,
     strategies: [],
     sign_in_path: "/sign-in",
-    sign_up_path: "/auth/sign-up",
     after_sign_in_path: "/",
     password_min_length: 8,
     password_max_length: 72,

@@ -42,34 +42,29 @@ defmodule EzAuth do
 
   defmacro auth_routes(opts \\ []) do
     handler = Keyword.get(opts, :handler)
-    prefix = Keyword.get(opts, :prefix, "/auth")
     strategies = EzAuth.Strategy.supported_strategies()
 
     quote do
       EzAuth.__validate_scope__!(__MODULE__)
 
-      scope unquote(prefix), alias: false, as: false do
+      scope "/auth", alias: false, as: false do
         for strategy <- unquote(strategies) do
           slug = EzAuth.Strategy.slug(strategy)
 
           post("/#{slug}/request", EzAuth.Dispatcher, :request,
-            as: EzAuth.Strategy.helper(strategy, :request),
             private: %{ez_auth: %{strategy: strategy, handler: unquote(handler)}}
           )
 
           post("/#{slug}/callback", EzAuth.Dispatcher, :callback,
-            as: EzAuth.Strategy.helper(strategy, :callback),
             private: %{ez_auth: %{strategy: strategy, handler: unquote(handler)}}
           )
         end
 
         post("/sign-up", EzAuth.Dispatcher, :sign_up,
-          as: :ez_auth_sign_up,
           private: %{ez_auth: %{handler: unquote(handler)}}
         )
 
         delete("/sign-out", EzAuth.Dispatcher, :sign_out,
-          as: :ez_auth_sign_out,
           private: %{ez_auth: %{handler: unquote(handler)}}
         )
       end
@@ -78,15 +73,11 @@ defmodule EzAuth do
 
   def __validate_scope__!(module) do
     if Enum.any?(scopes(module), &problematic?/1) do
-      IO.warn("""
-      auth_routes/1 was invoked inside a scope that sets `:path`, `:alias`, or `:as`.
-      ez_auth mounts its own scope internally (see the `:prefix` option), resets
-      `:alias` and `:as` to keep helper names stable, and owns its controllers.
-      Any outer values are either ignored or produce a double prefix.
-
-      Remove the wrapping scope, or keep only `pipe_through` inside `scope "/"`.
-      Use `auth_routes(prefix: "/custom")` to change the mount point.
-      """)
+      raise CompileError,
+        description: """
+        auth_routes/1 must be invoked at the router's top level, or inside a top level scope.
+        Remove the wrapping scope so the auth routes can be correctly registered.
+        """
     end
   end
 

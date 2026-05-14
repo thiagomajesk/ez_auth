@@ -3,8 +3,6 @@ defmodule EzAuth.Strategy do
   Behaviour implemented by authentication strategies.
   """
 
-  alias EzAuth.Config
-
   @supported_strategies [
     EzAuth.Strategies.Password,
     EzAuth.Strategies.MagicLink,
@@ -93,14 +91,5 @@ defmodule EzAuth.Strategy do
     strategy.__meta__(:id)
     |> to_string()
     |> String.replace("_", "-")
-  end
-
-  def helper(strategy, action),
-    do: :"ez_auth_#{strategy.__meta__(:id)}_#{action}"
-
-  def path(strategy, action) do
-    router = Module.concat(Config.router!(), Helpers)
-    helper_name = :"#{helper(strategy, action)}_path"
-    apply(router, helper_name, [Config.endpoint!(), action])
   end
 end

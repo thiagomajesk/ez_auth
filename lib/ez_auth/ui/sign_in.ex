@@ -104,7 +104,7 @@ defmodule EzAuth.UI.SignIn do
 
         <:footer>
           {translate("Don't have an account?")}
-          <a href={Config.sign_up_path()} data-part="footer-link">
+          <a href="/auth/sign-up" data-part="footer-link">
             {translate("Sign up")}
           </a>
         </:footer>
@@ -212,7 +212,7 @@ defmodule EzAuth.UI.SignIn do
 
   defp request_path(strategies, identity) do
     if strategy = Enum.find(strategies, &(&1.__meta__(:identity) == identity)),
-      do: Strategy.path(strategy, :request)
+      do: "/auth/#{Strategy.slug(strategy)}/request"
   end
 
   defp disable_submit?(assigns),

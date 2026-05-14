@@ -42,7 +42,7 @@ defmodule EzAuth.UI.SignUp do
         <Core.auth_form
           form={@form}
           :if={show_form?(assigns)}
-          action={Config.sign_up_path()}
+          action="/auth/sign-up"
           trigger_action={@trigger_action}
           myself={@myself}
         >
