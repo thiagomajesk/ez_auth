@@ -38,7 +38,7 @@ defmodule EzAuth.MixProject do
       {:bcrypt_elixir, "~> 3.0"},
       {:phoenix, "~> 1.8"},
       {:phoenix_ecto, "~> 4.5"},
-      {:phoenix_live_view, "~> 1.0"},
+      {:phoenix_live_view, "~> 1.1"},
       {:gettext, "~> 0.24"},
       {:jason, "~> 1.0"},
       {:phoenix_storybook, "~> 0.8", only: :dev},
