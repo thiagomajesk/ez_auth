@@ -39,7 +39,7 @@ defmodule EzAuth.MixProject do
       {:phoenix, "~> 1.8"},
       {:phoenix_ecto, "~> 4.5"},
       {:phoenix_live_view, "~> 1.1"},
-      {:gettext, "~> 0.24"},
+      {:gettext, "~> 1.0"},
       {:jason, "~> 1.0"},
       {:phoenix_storybook, "~> 0.8", only: :dev},
       {:phoenix_playground, "~> 0.1", only: :dev},
