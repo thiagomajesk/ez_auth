@@ -38,7 +38,7 @@ defmodule EzAuth.UI.SignUpTest do
 
     test "preserves field values across change events" do
       stub_config(strategies: [Strategies.Password])
-      stub(EzAuth.Accounts, :email_taken?, fn _ -> false end)
+      stub(EzAuth.Accounts, :email_taken?, fn _email -> false end)
 
       socket = %Phoenix.LiveView.Socket{assigns: %{__changed__: %{}, myself: nil}}
 

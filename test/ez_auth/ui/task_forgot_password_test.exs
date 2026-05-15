@@ -137,7 +137,7 @@ defmodule EzAuth.UI.TaskForgotPasswordTest do
 
       socket = build_socket(%{email: "user@example.com"})
 
-      assert {:noreply, _} = TaskForgotPassword.handle_event("resend", %{}, socket)
+      assert {:noreply, _socket} = TaskForgotPassword.handle_event("resend", %{}, socket)
     end
   end
 

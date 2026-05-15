@@ -39,7 +39,7 @@ defmodule EzAuth.UI.TaskVerifyAccountTest do
     test "renders the configured number of input boxes" do
       html = render_component(TaskVerifyAccount, id: "verify", length: 4)
 
-      assert Regex.scan(~r/data-part="code-input-box"/, html) |> length() == 4
+      assert length(Regex.scan(~r/data-part="code-input-box"/, html)) == 4
     end
 
     test "shows the Back button only when on_back is given" do

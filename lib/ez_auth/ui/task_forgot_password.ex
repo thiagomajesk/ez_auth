@@ -156,7 +156,7 @@ defmodule EzAuth.UI.TaskForgotPassword do
          |> assign(:user, verification.user)
          |> assign(:step, :reset)}
 
-      {:error, _} ->
+      {:error, _reason} ->
         {:noreply, socket}
     end
   end

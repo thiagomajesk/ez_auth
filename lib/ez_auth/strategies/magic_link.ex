@@ -15,7 +15,7 @@ defmodule EzAuth.Strategies.MagicLink do
   def request(conn, params) do
     changeset = User.sign_in_with_email_changeset(params)
 
-    with {:ok, _} <- Changeset.apply_action(changeset, :validate),
+    with {:ok, _user} <- Changeset.apply_action(changeset, :validate),
          {:ok, email} <- Changeset.fetch_change(changeset, :email),
          {:ok, {user, identity}} <- Accounts.find_or_create_email_identity(email) do
       Accounts.issue_identity_verification(identity, :email)

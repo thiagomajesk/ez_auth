@@ -94,7 +94,7 @@ defmodule EzAuth.Accounts.User do
   defp validate_profile_name(changeset) do
     case get_change(changeset, :name) do
       nil -> changeset
-      _ -> validate_name_format(changeset)
+      _name -> validate_name_format(changeset)
     end
   end
 
@@ -103,7 +103,7 @@ defmodule EzAuth.Accounts.User do
       nil ->
         changeset
 
-      _ ->
+      _username ->
         changeset
         |> validate_username_format()
         |> validate_username_available()

@@ -88,8 +88,7 @@ defmodule EzAuth.Strategy do
   end
 
   def slug(strategy) do
-    strategy.__meta__(:id)
-    |> to_string()
-    |> String.replace("_", "-")
+    id = strategy.__meta__(:id)
+    String.replace(to_string(id), "_", "-")
   end
 end

@@ -297,7 +297,7 @@ defmodule EzAuth.AccountsTest do
       assert {:error, %Ecto.Changeset{errors: errors}} =
                Accounts.update_user_profile(user, %{"username" => "alice"})
 
-      assert {"has already been taken", _} = Keyword.fetch!(errors, :username)
+      assert {"has already been taken", _opts} = Keyword.fetch!(errors, :username)
     end
   end
 

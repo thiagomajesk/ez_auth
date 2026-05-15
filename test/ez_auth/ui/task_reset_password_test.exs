@@ -54,7 +54,7 @@ defmodule EzAuth.UI.TaskResetPasswordTest do
       assert {:noreply, %{assigns: %{form: form}}} =
                TaskResetPassword.handle_event("change", params, socket)
 
-      assert {"does not match password", _} =
+      assert {"does not match password", _opts} =
                Keyword.fetch!(form.errors, :password_confirmation)
     end
   end
@@ -93,7 +93,7 @@ defmodule EzAuth.UI.TaskResetPasswordTest do
 
       assert form.action == :validate
 
-      assert {"must be at least %{count} characters", _} =
+      assert {"must be at least %{count} characters", _opts} =
                Keyword.fetch!(form.errors, :password)
     end
 
@@ -103,7 +103,7 @@ defmodule EzAuth.UI.TaskResetPasswordTest do
       Accounts.generate_user_session_token(user)
       assert TestRepo.aggregate(Session, :count) == 2
 
-      stub(Endpoint, :broadcast, fn _, _, _ -> :ok end)
+      stub(Endpoint, :broadcast, fn _topic, _event, _payload -> :ok end)
 
       socket = build_socket(user)
 
@@ -114,7 +114,7 @@ defmodule EzAuth.UI.TaskResetPasswordTest do
         }
       }
 
-      assert {:noreply, _} = TaskResetPassword.handle_event("submit", params, socket)
+      assert {:noreply, _socket} = TaskResetPassword.handle_event("submit", params, socket)
       assert TestRepo.aggregate(Session, :count) == 0
     end
   end

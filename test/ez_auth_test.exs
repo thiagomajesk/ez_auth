@@ -3,7 +3,7 @@ defmodule EzAuthTest do
 
   describe "auth_routes/1 scope validation" do
     test "compiles when invoked at the router top level" do
-      assert [_ | _] =
+      assert [_module | _rest] =
                compile_router("""
                defmodule #{router_name()} do
                  use Phoenix.Router

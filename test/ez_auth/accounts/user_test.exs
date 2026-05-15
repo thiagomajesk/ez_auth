@@ -118,7 +118,7 @@ defmodule EzAuth.Accounts.UserTest do
 
         refute changeset.valid?
 
-        assert {"must contain only letters, spaces, hyphens, apostrophes, and periods", _} =
+        assert {"must contain only letters, spaces, hyphens, apostrophes, and periods", _opts} =
                  Keyword.fetch!(changeset.errors, :name)
       end
     end
@@ -144,7 +144,7 @@ defmodule EzAuth.Accounts.UserTest do
 
       refute changeset.valid?
 
-      assert {"must start with a letter and contain only letters, digits, and underscores", _} =
+      assert {"must start with a letter and contain only letters, digits, and underscores", _opts} =
                Keyword.fetch!(changeset.errors, :username)
     end
 
@@ -153,7 +153,7 @@ defmodule EzAuth.Accounts.UserTest do
       changeset = User.profile_changeset(%User{}, %{"username" => "alice"})
 
       refute changeset.valid?
-      assert {"has already been taken", _} = Keyword.fetch!(changeset.errors, :username)
+      assert {"has already been taken", _opts} = Keyword.fetch!(changeset.errors, :username)
     end
   end
 
@@ -175,7 +175,7 @@ defmodule EzAuth.Accounts.UserTest do
       changeset = User.password_changeset(%User{}, %{})
 
       refute changeset.valid?
-      assert {"can't be blank", _} = Keyword.fetch!(changeset.errors, :password)
+      assert {"can't be blank", _opts} = Keyword.fetch!(changeset.errors, :password)
     end
 
     test "rejects passwords that do not match the confirmation" do
@@ -187,7 +187,7 @@ defmodule EzAuth.Accounts.UserTest do
 
       refute changeset.valid?
 
-      assert {"does not match password", _} =
+      assert {"does not match password", _opts} =
                Keyword.fetch!(changeset.errors, :password_confirmation)
     end
 

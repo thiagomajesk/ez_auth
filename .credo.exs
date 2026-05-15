@@ -127,7 +127,6 @@
           {Credo.Check.Refactor.FunctionArity, []},
           {Credo.Check.Refactor.LongQuoteBlocks, []},
           {Credo.Check.Refactor.MapJoin, []},
-          {Credo.Check.Refactor.MatchInCondition, []},
           {Credo.Check.Refactor.NegatedConditionsInUnless, []},
           {Credo.Check.Refactor.NegatedConditionsWithElse, []},
           {Credo.Check.Refactor.Nesting, []},
@@ -181,7 +180,13 @@
         ],
         disabled: [
           #
+          # Undesired idiom for this codebase
+          #
+          {Credo.Check.Refactor.MatchInCondition, []},
+
+          #
           # Checks scheduled for next check update (opt-in for now)
+          #
           {Credo.Check.Refactor.UtcNowTruncate, []},
           {Credo.Check.Readability.ImplTrue, []},
 

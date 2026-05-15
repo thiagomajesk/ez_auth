@@ -156,7 +156,7 @@ defmodule EzAuth.UI.SignIn do
     changeset = sign_in_changeset(user_params, detected, strategies)
 
     case Ecto.Changeset.apply_action(changeset, :validate) do
-      {:ok, _} ->
+      {:ok, _user} ->
         {:noreply, assign(socket, :trigger_action, true)}
 
       {:error, changeset} ->
