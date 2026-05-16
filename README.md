@@ -30,6 +30,8 @@ Run the installer from your Phoenix application:
 mix ez_auth.install
 ```
 
+Then apply the generated migrations to your DB with `mix ecto.migrate`.
+
 > NOTE: EzAuth generates migrations assuming PostgreSQL features by default (such as `citext`). You are free to adjust it to your needs as long as you don't drastically modify the core schema the library relies on.
 
 ### Step 2 - Add basic configuration
