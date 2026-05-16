@@ -146,9 +146,13 @@ For example, the `:email` event is emitted when EzAuth creates an email verifica
 defmodule MyApp.AuthSender do
   @behaviour EzAuth.Sender
 
+  alias EzAuth.Scopes.SenderScope
+
   @impl true
-  def deliver(:email, %{user: user, token: token}) do
-    # Send email to the target user with the token
+  def deliver(:email, scope) do
+    confirmation_url = SenderScope.password_confirmation(scope)
+
+    # Deliver confirmation_url to scope.user
   end
 end
 ```
@@ -174,12 +178,23 @@ defmodule MyAppWeb.AuthHandler do
 
   @impl true
   def handle_success(conn, {:default, :sign_up}, _user) do
-    # Handles success cases for the sign-up action
+    conn
+    |> put_flash(:info, "Check your email to confirm your account.")
+    |> redirect(to: EzAuth.Config.sign_in_path())
   end
 
   @impl true
   def handle_failure(conn, {:password, :request}, _reason) do
-    # Handles failure cases for the password request action
+    conn
+    |> put_flash(:error, "Invalid email or password.")
+    |> redirect(to: EzAuth.Config.sign_in_path())
+  end
+
+  @impl true
+  def handle_success(conn, {:password, :callback}, _user) do
+    conn
+    |> put_flash(:info, "Your email has been confirmed. You can sign in now.")
+    |> redirect(to: EzAuth.Config.sign_in_path())
   end
 end
 ```
