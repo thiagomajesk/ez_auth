@@ -22,7 +22,7 @@ defmodule EzAuth.Handler do
   def maybe_invoke(conn, handler, fun, args) do
     arity = length(args) + 1
 
-    if function_exported?(handler, fun, arity),
+    if Code.ensure_loaded?(handler) and function_exported?(handler, fun, arity),
       do: apply(handler, fun, [conn | args]),
       else: conn
   end
