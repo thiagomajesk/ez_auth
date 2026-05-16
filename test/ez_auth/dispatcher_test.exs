@@ -16,7 +16,7 @@ defmodule EzAuth.DispatcherTest do
       conn = put_ez_auth(build_conn(), strategy: Strategy, handler: Handler)
       user = %{id: 1}
 
-      expect(Strategy, :request, fn ^conn, %{"email" => "user@example.com"} ->
+      expect(Strategy, :request, fn ^conn, %{"user" => %{"email" => "user@example.com"}} ->
         {:ok, conn, user}
       end)
 
@@ -60,7 +60,7 @@ defmodule EzAuth.DispatcherTest do
       conn = put_ez_auth(build_conn(), strategy: Strategy, handler: Handler)
       user = %{id: 1}
 
-      expect(Strategy, :callback, fn ^conn, %{"token" => "abc"} ->
+      expect(Strategy, :callback, fn ^conn, %{"user" => %{"token" => "abc"}} ->
         {:ok, conn, user}
       end)
 

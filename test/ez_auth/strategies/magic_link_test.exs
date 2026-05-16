@@ -22,7 +22,7 @@ defmodule EzAuth.Strategies.MagicLinkTest do
       expect(Accounts, :issue_identity_verification, fn ^identity, :email -> :ok end)
 
       assert {:ok, ^conn, %{id: 1}} =
-               MagicLink.request(conn, %{"email" => "user@example.com"})
+               MagicLink.request(conn, %{"user" => %{"email" => "user@example.com"}})
     end
 
     test "verifies the token and signs the user in" do

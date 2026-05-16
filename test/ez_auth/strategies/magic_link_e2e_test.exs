@@ -16,7 +16,9 @@ defmodule EzAuth.Strategies.MagicLinkE2ETest do
       insert(:identity, value: "user@example.com", verified_at: DateTime.utc_now(:second))
 
       assert {:ok, _conn, %{id: _user_id}} =
-               MagicLink.request(build_session_conn(), %{"email" => "user@example.com"})
+               MagicLink.request(build_session_conn(), %{
+                 "user" => %{"email" => "user@example.com"}
+               })
 
       assert %{type: :email, value: "user@example.com"} =
                QueryHelpers.fetch_verification!(TestRepo, :email, "user@example.com")

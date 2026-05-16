@@ -15,7 +15,7 @@ defmodule EzAuth.Strategies.PasswordE2ETest do
       params = Map.put(build(:email_sign_in_attrs), "email", "user@example.com")
 
       assert {:ok, conn, %{id: _signed_in_user_id}} =
-               Password.request(build_session_conn(), params)
+               Password.request(build_session_conn(), %{"user" => params})
 
       assert get_session(conn, :user_token)
     end
@@ -25,7 +25,7 @@ defmodule EzAuth.Strategies.PasswordE2ETest do
       params = Map.put(build(:email_sign_in_attrs), "email", "missing@example.com")
 
       assert {:error, :invalid_credentials} =
-               Password.request(build_session_conn(), params)
+               Password.request(build_session_conn(), %{"user" => params})
     end
   end
 end

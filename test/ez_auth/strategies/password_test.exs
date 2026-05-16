@@ -18,7 +18,8 @@ defmodule EzAuth.Strategies.PasswordTest do
       expect(Accounts, :get_user_by_email, fn "user@example.com" -> user end)
       expect(Auth, :sign_in_user, fn ^conn, ^user -> Plug.Conn.assign(conn, :signed_in, true) end)
 
-      assert {:ok, %{assigns: %{signed_in: true}}, %{id: 1}} = Password.request(conn, params)
+      assert {:ok, %{assigns: %{signed_in: true}}, %{id: 1}} =
+               Password.request(conn, %{"user" => params})
     end
 
     test "returns changeset errors when the sign in params are invalid" do
@@ -29,7 +30,7 @@ defmodule EzAuth.Strategies.PasswordTest do
               %Ecto.Changeset{
                 errors: [password: {"can't be blank", _password_error}]
               }} =
-               Password.request(conn, %{"email" => "user@example.com"})
+               Password.request(conn, %{"user" => %{"email" => "user@example.com"}})
     end
 
     test "returns invalid credentials when the user is missing" do
@@ -39,7 +40,7 @@ defmodule EzAuth.Strategies.PasswordTest do
 
       expect(Accounts, :get_user_by_email, fn "missing@example.com" -> nil end)
 
-      assert {:error, :invalid_credentials} = Password.request(conn, params)
+      assert {:error, :invalid_credentials} = Password.request(conn, %{"user" => params})
     end
 
     test "returns invalid credentials when the password does not match" do
@@ -51,7 +52,7 @@ defmodule EzAuth.Strategies.PasswordTest do
         %{id: 1, hashed_password: Bcrypt.hash_pwd_salt("another-password")}
       end)
 
-      assert {:error, :invalid_credentials} = Password.request(conn, params)
+      assert {:error, :invalid_credentials} = Password.request(conn, %{"user" => params})
     end
   end
 end

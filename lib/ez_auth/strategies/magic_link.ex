@@ -12,8 +12,8 @@ defmodule EzAuth.Strategies.MagicLink do
   alias EzAuth.Accounts.User
 
   @impl true
-  def request(conn, params) do
-    changeset = User.sign_in_with_email_changeset(params)
+  def request(conn, %{"user" => user_params}) do
+    changeset = User.sign_in_with_email_changeset(user_params)
 
     with {:ok, _user} <- Changeset.apply_action(changeset, :validate),
          {:ok, email} <- Changeset.fetch_change(changeset, :email),

@@ -10,9 +10,9 @@ defmodule EzAuth.Dispatcher do
 
   plug(:check_strategy when action in [:request, :callback])
 
-  def request(conn, %{"user" => user_params}), do: dispatch(conn, user_params, :request)
+  def request(conn, params), do: dispatch(conn, params, :request)
 
-  def callback(conn, %{"user" => user_params}), do: dispatch(conn, user_params, :callback)
+  def callback(conn, params), do: dispatch(conn, params, :callback)
 
   defp dispatch(conn, params, action) do
     %{strategy: strategy, handler: handler} = conn.private.ez_auth
