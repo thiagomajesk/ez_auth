@@ -21,6 +21,7 @@ defmodule EzAuth.TestConfig do
     sender
     session_validity_in_minutes
     sign_in_path
+    sign_up_path
     strategies
     token_rand_size
     username_format
@@ -35,6 +36,7 @@ defmodule EzAuth.TestConfig do
     gettext_backend: nil,
     strategies: [],
     sign_in_path: "/sign-in",
+    sign_up_path: "/sign-up",
     after_sign_in_path: "/",
     password_min_length: 8,
     password_max_length: 72,

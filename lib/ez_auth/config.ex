@@ -63,6 +63,8 @@ defmodule EzAuth.Config do
 
   def sign_in_path, do: env(:sign_in_path, :string, "/sign-in")
 
+  def sign_up_path, do: env(:sign_up_path, :string, "/sign-up")
+
   def strategy_enabled?(strategy), do: strategy in strategies()
 
   def username_format,

@@ -14,7 +14,7 @@ defmodule EzAuth.UI.SignInTest do
 
       html = render_component(SignIn, id: "sign-in")
 
-      assert html =~ ~s(name="identity")
+      assert html =~ ~s(name="_identity")
     end
 
     test "renders social buttons below the form when social strategies are enabled" do
@@ -30,8 +30,17 @@ defmodule EzAuth.UI.SignInTest do
 
       html = render_component(SignIn, id: "sign-in")
 
-      assert html =~ ~s(name="identity")
+      assert html =~ ~s(name="_identity")
       refute html =~ ~s(type="tel")
+    end
+
+    test "links to the configured sign-up page" do
+      stub_config(strategies: [Strategies.Password], sign_up_path: "/join")
+
+      html = render_component(SignIn, id: "sign-in")
+
+      assert html =~ ~s(href="/join")
+      refute html =~ ~s(href="/auth/sign-up")
     end
   end
 end

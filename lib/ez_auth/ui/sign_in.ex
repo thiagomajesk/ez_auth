@@ -105,7 +105,7 @@ defmodule EzAuth.UI.SignIn do
 
         <:footer>
           {translate("Don't have an account?")}
-          <a href="/auth/sign-up" data-part="footer-link">
+          <a href={Config.sign_up_path()} data-part="footer-link">
             {translate("Sign up")}
           </a>
         </:footer>

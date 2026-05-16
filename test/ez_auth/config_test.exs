@@ -18,6 +18,18 @@ defmodule EzAuth.ConfigTest do
       assert Config.password_min_length() == 8
     end
 
+    test "sign_up_path defaults to the generated sign-up page path" do
+      with_env([:sign_up_path])
+
+      assert Config.sign_up_path() == "/sign-up"
+    end
+
+    test "sign_up_path carries through env values when set" do
+      with_env(:sign_up_path, "/join")
+
+      assert Config.sign_up_path() == "/join"
+    end
+
     test "required helpers raise when their key is missing" do
       for {fun, key} <- [
             {&Config.repo!/0, :repo},
