@@ -1,5 +1,8 @@
 defmodule EzAuth.ScopesTest do
   use ExUnit.Case, async: true
+  use Mimic
+
+  import EzAuth.TestConfig
 
   alias EzAuth.Scopes.SenderScope
   alias EzAuth.Scopes.UserScope
@@ -9,6 +12,13 @@ defmodule EzAuth.ScopesTest do
       user = %{id: 1}
 
       assert %SenderScope{user: ^user, token: "token"} = SenderScope.new(user, "token")
+    end
+
+    test "builds the password confirmation URL from the configured endpoint" do
+      stub_config()
+
+      assert SenderScope.password_confirmation(SenderScope.new(%{id: 1}, "token")) ==
+               "http://localhost/auth/password/callback?token=token"
     end
   end
 
