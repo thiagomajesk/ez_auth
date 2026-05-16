@@ -189,6 +189,18 @@ defmodule EzAuth.AccountsTest do
   end
 
   describe "issue_identity_verification/2" do
+    test "creates a verification without a configured sender" do
+      base_config(%{sender: nil})
+
+      %{user: %User{id: user_id}} =
+        identity = insert(:identity, value: "alice@example.com", verified_at: nil)
+
+      assert :ok = Accounts.issue_identity_verification(identity, :email)
+
+      assert %Verification{user_id: ^user_id, type: :email} =
+               QueryHelpers.fetch_verification!(TestRepo, :email, "alice@example.com")
+    end
+
     test "creates a verification and dispatches the encoded token" do
       base_config(%{sender: Sender})
 
@@ -302,6 +314,18 @@ defmodule EzAuth.AccountsTest do
   end
 
   describe "request_password_recovery/1" do
+    test "issues a recovery code without a configured sender" do
+      base_config(%{sender: nil})
+
+      %{user: %User{id: user_id}} =
+        insert(:identity, value: "alice@example.com", verified_at: DateTime.utc_now(:second))
+
+      assert :ok = Accounts.request_password_recovery("alice@example.com")
+
+      assert %Verification{user_id: ^user_id, type: :recovery} =
+               QueryHelpers.fetch_verification!(TestRepo, :recovery, "alice@example.com")
+    end
+
     test "issues a recovery code and dispatches it via the sender for known emails" do
       base_config(%{sender: Sender})
 

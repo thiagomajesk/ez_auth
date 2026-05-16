@@ -57,7 +57,7 @@ defmodule EzAuth.Config do
 
   def repo!, do: env!(:repo, :atom)
 
-  def sender!, do: env!(:sender, :atom)
+  def sender, do: env(:sender, :atom)
 
   def session_validity_in_minutes, do: env(:session_validity_in_minutes, :integer, 20_160)
 

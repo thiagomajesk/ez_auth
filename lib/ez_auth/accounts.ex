@@ -138,7 +138,7 @@ defmodule EzAuth.Accounts do
 
       user ->
         {code, _verification} = create_verification(user, :recovery, email)
-        Sender.maybe_invoke(Config.sender!(), :recovery, SenderScope.new(user, code))
+        Sender.maybe_invoke(Config.sender(), :recovery, SenderScope.new(user, code))
     end
   end
 
@@ -149,7 +149,7 @@ defmodule EzAuth.Accounts do
     {token, _verification} = create_verification(identity.user, type, identity.value)
 
     Sender.maybe_invoke(
-      Config.sender!(),
+      Config.sender(),
       identity.type,
       SenderScope.new(identity.user, token)
     )

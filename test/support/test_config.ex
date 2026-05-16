@@ -18,7 +18,7 @@ defmodule EzAuth.TestConfig do
     recovery_code_length
     recovery_code_validity_in_minutes
     repo!
-    sender!
+    sender
     session_validity_in_minutes
     sign_in_path
     strategies

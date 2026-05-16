@@ -21,7 +21,6 @@ defmodule EzAuth.ConfigTest do
     test "required helpers raise when their key is missing" do
       for {fun, key} <- [
             {&Config.repo!/0, :repo},
-            {&Config.sender!/0, :sender},
             {&Config.endpoint!/0, :endpoint}
           ] do
         with_env(key, nil)
