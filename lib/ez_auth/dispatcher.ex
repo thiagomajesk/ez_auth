@@ -16,13 +16,14 @@ defmodule EzAuth.Dispatcher do
 
   defp dispatch(conn, params, action) do
     %{strategy: strategy, handler: handler} = conn.private.ez_auth
+    event = {strategy.__meta__(:id), action}
 
     case apply(strategy, action, [conn, params]) do
       {:ok, conn, user} ->
-        Handler.maybe_invoke(conn, handler, :handle_success, [action, user])
+        Handler.maybe_invoke(conn, handler, :handle_success, [event, user])
 
       {:error, reason} ->
-        Handler.maybe_invoke(conn, handler, :handle_failure, [action, reason])
+        Handler.maybe_invoke(conn, handler, :handle_failure, [event, reason])
     end
   end
 
@@ -32,10 +33,10 @@ defmodule EzAuth.Dispatcher do
     case EzAuth.Accounts.create_user_with_password(user_params) do
       {:ok, {user, identity}} ->
         EzAuth.Accounts.request_email_verification(identity)
-        Handler.maybe_invoke(conn, handler, :handle_success, [:sign_up, user])
+        Handler.maybe_invoke(conn, handler, :handle_success, [{:default, :sign_up}, user])
 
       {:error, reason} ->
-        Handler.maybe_invoke(conn, handler, :handle_failure, [:sign_up, reason])
+        Handler.maybe_invoke(conn, handler, :handle_failure, [{:default, :sign_up}, reason])
     end
   end
 
@@ -44,7 +45,7 @@ defmodule EzAuth.Dispatcher do
     user = get_in(conn.assigns.current_scope.user)
 
     conn = EzAuth.Auth.sign_out_user(conn, user)
-    Handler.maybe_invoke(conn, handler, :handle_success, [:sign_out, user])
+    Handler.maybe_invoke(conn, handler, :handle_success, [{:default, :sign_out}, user])
   end
 
   defp check_strategy(conn, _opts) do

@@ -20,12 +20,12 @@ defmodule EzAuth.DispatcherTest do
         {:ok, conn, user}
       end)
 
-      expect(Handler, :handle_success, fn ^conn, :request, ^user ->
+      expect(Handler, :handle_success, fn ^conn, {:test, :request}, ^user ->
         assign(conn, :handled, :success)
       end)
 
       assert %{assigns: %{handled: :success}} =
-               Dispatcher.request(conn, %{"email" => "user@example.com"})
+               Dispatcher.request(conn, %{"user" => %{"email" => "user@example.com"}})
     end
 
     test "delegates strategy failures to the handler" do
@@ -35,11 +35,11 @@ defmodule EzAuth.DispatcherTest do
         {:error, :invalid_credentials}
       end)
 
-      expect(Handler, :handle_failure, fn ^conn, :request, :invalid_credentials ->
+      expect(Handler, :handle_failure, fn ^conn, {:test, :request}, :invalid_credentials ->
         assign(conn, :handled, :failure)
       end)
 
-      assert %{assigns: %{handled: :failure}} = Dispatcher.request(conn, %{})
+      assert %{assigns: %{handled: :failure}} = Dispatcher.request(conn, %{"user" => %{}})
     end
   end
 
@@ -52,12 +52,12 @@ defmodule EzAuth.DispatcherTest do
         {:ok, conn, user}
       end)
 
-      expect(Handler, :handle_success, fn ^conn, :callback, ^user ->
+      expect(Handler, :handle_success, fn ^conn, {:test, :callback}, ^user ->
         assign(conn, :handled, :success)
       end)
 
       assert %{assigns: %{handled: :success}} =
-               Dispatcher.callback(conn, %{"token" => "abc"})
+               Dispatcher.callback(conn, %{"user" => %{"token" => "abc"}})
     end
   end
 
@@ -75,7 +75,7 @@ defmodule EzAuth.DispatcherTest do
       end)
 
       expect(Handler, :handle_success, fn %{assigns: %{signed_out: true}} = conn,
-                                          :sign_out,
+                                          {:default, :sign_out},
                                           ^user ->
         assign(conn, :handled, true)
       end)
@@ -96,12 +96,12 @@ defmodule EzAuth.DispatcherTest do
 
       expect(Accounts, :request_email_verification, fn ^identity -> :ok end)
 
-      expect(Handler, :handle_success, fn ^conn, :sign_up, ^user ->
+      expect(Handler, :handle_success, fn ^conn, {:default, :sign_up}, ^user ->
         assign(conn, :handled, :success)
       end)
 
       assert %{assigns: %{handled: :success}} =
-               Dispatcher.sign_up(conn, %{"email" => "user@example.com"})
+               Dispatcher.sign_up(conn, %{"user" => %{"email" => "user@example.com"}})
     end
 
     test "reports sign up failures to the handler" do
@@ -112,12 +112,12 @@ defmodule EzAuth.DispatcherTest do
         {:error, changeset}
       end)
 
-      expect(Handler, :handle_failure, fn ^conn, :sign_up, ^changeset ->
+      expect(Handler, :handle_failure, fn ^conn, {:default, :sign_up}, ^changeset ->
         assign(conn, :handled, :failure)
       end)
 
       assert %{assigns: %{handled: :failure}} =
-               Dispatcher.sign_up(conn, %{"email" => "user@example.com"})
+               Dispatcher.sign_up(conn, %{"user" => %{"email" => "user@example.com"}})
     end
   end
 

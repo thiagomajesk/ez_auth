@@ -20,7 +20,7 @@ defmodule EzAuth.Accounts.SignUpE2ETest do
         |> build()
         |> Map.put("email", "new@example.com")
 
-      assert %Plug.Conn{} = Dispatcher.sign_up(build_dispatcher_conn(), params)
+      assert %Plug.Conn{} = Dispatcher.sign_up(build_dispatcher_conn(), %{"user" => params})
 
       assert %{user_id: user_id, verified_at: nil} =
                QueryHelpers.fetch_identity!(TestRepo, :email, "new@example.com")
@@ -35,7 +35,9 @@ defmodule EzAuth.Accounts.SignUpE2ETest do
       stub_config(strategies: [EzAuth.Strategies.Password])
 
       assert %Plug.Conn{} =
-               Dispatcher.sign_up(build_dispatcher_conn(), %{"email" => "not-an-email"})
+               Dispatcher.sign_up(build_dispatcher_conn(), %{
+                 "user" => %{"email" => "not-an-email"}
+               })
 
       assert TestRepo.aggregate(User, :count) == 0
     end
