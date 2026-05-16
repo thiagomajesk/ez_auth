@@ -15,6 +15,8 @@ defmodule EzAuth.Strategy do
     EzAuth.Strategies.Microsoft
   ]
 
+  @http_methods [:connect, :delete, :get, :head, :options, :patch, :post, :put, :trace]
+
   def supported_strategies, do: @supported_strategies
 
   @type result :: {:ok, Plug.Conn.t(), user :: struct()} | {:error, reason :: term()}
@@ -23,7 +25,8 @@ defmodule EzAuth.Strategy do
           id: atom(),
           name: String.t(),
           identity: atom(),
-          kind: :credential | :passwordless | :social
+          kind: :credential | :passwordless | :social,
+          callback_methods: [atom()]
         }
 
   @callback __meta__() :: meta
@@ -36,6 +39,7 @@ defmodule EzAuth.Strategy do
     name = Keyword.fetch!(opts, :name)
     identity = Keyword.fetch!(opts, :identity)
     kind = Keyword.fetch!(opts, :kind)
+    callback_methods = Keyword.get(opts, :callback_methods, [:get])
 
     if not is_atom(id),
       do: raise(ArgumentError, "strategy :id must be an atom")
@@ -53,6 +57,13 @@ defmodule EzAuth.Strategy do
           "strategy :kind must be one of :credential, :passwordless, :social"
         )
 
+    if not is_list(callback_methods) or Enum.any?(callback_methods, &(&1 not in @http_methods)),
+      do:
+        raise(
+          ArgumentError,
+          "strategy :callback_methods must be a list of atoms representing valid HTTP methods"
+        )
+
     quote do
       require Logger
 
@@ -64,7 +75,8 @@ defmodule EzAuth.Strategy do
           id: unquote(id),
           name: unquote(name),
           identity: unquote(identity),
-          kind: unquote(kind)
+          kind: unquote(kind),
+          callback_methods: unquote(callback_methods)
         }
       end
 

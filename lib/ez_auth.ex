@@ -55,9 +55,11 @@ defmodule EzAuth do
             private: %{ez_auth: %{strategy: strategy, handler: unquote(handler)}}
           )
 
-          post("/#{slug}/callback", EzAuth.Dispatcher, :callback,
-            private: %{ez_auth: %{strategy: strategy, handler: unquote(handler)}}
-          )
+          for method <- strategy.__meta__(:callback_methods) do
+            match(method, "/#{slug}/callback", EzAuth.Dispatcher, :callback,
+              private: %{ez_auth: %{strategy: strategy, handler: unquote(handler)}}
+            )
+          end
         end
 
         post("/sign-up", EzAuth.Dispatcher, :sign_up,

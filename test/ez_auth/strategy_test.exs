@@ -21,6 +21,15 @@ defmodule EzAuth.StrategyTest do
       kind: :passwordless
   end
 
+  defmodule PostCallback do
+    use EzAuth.Strategy,
+      id: :post_callback,
+      name: "post callback",
+      identity: :email,
+      kind: :passwordless,
+      callback_methods: [:get, :post]
+  end
+
   defmodule Partial do
     use EzAuth.Strategy,
       id: :partial,
@@ -37,13 +46,16 @@ defmodule EzAuth.StrategyTest do
              id: :magic_link,
              name: "link",
              identity: :email,
-             kind: :passwordless
+             kind: :passwordless,
+             callback_methods: [:get]
            }
 
     assert MagicLink.__meta__(:id) == :magic_link
     assert MagicLink.__meta__(:name) == "link"
     assert MagicLink.__meta__(:identity) == :email
     assert MagicLink.__meta__(:kind) == :passwordless
+    assert MagicLink.__meta__(:callback_methods) == [:get]
+    assert PostCallback.__meta__(:callback_methods) == [:get, :post]
   end
 
   test "implemented actions override the generated fallback" do
