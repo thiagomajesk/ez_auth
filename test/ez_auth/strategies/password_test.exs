@@ -55,4 +55,29 @@ defmodule EzAuth.Strategies.PasswordTest do
       assert {:error, :invalid_credentials} = Password.request(conn, %{"user" => params})
     end
   end
+
+  describe "callback/2" do
+    test "verifies the email token without signing the user in" do
+      stub_config()
+      conn = build_session_conn()
+      user = %{id: 1}
+
+      expect(Accounts, :verify_magic_link, fn "token", :email ->
+        {:ok, %{user: user}}
+      end)
+
+      assert {:ok, ^conn, ^user} = Password.callback(conn, %{"token" => "token"})
+    end
+
+    test "returns the verification failure reason" do
+      stub_config()
+
+      expect(Accounts, :verify_magic_link, fn "token", :email ->
+        {:error, :invalid_token}
+      end)
+
+      assert {:error, :invalid_token} =
+               Password.callback(build_session_conn(), %{"token" => "token"})
+    end
+  end
 end

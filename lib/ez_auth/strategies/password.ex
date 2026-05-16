@@ -11,6 +11,12 @@ defmodule EzAuth.Strategies.Password do
   alias EzAuth.Accounts.User
 
   @impl true
+  def callback(conn, %{"token" => token}) do
+    with {:ok, verification} <- EzAuth.Accounts.verify_magic_link(token, :email),
+         do: {:ok, conn, verification.user}
+  end
+
+  @impl true
   def request(conn, %{"user" => user_params}) do
     changeset = User.sign_in_with_password_changeset(user_params)
 
