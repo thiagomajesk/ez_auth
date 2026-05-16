@@ -23,7 +23,7 @@ defmodule EzAuth.Dispatcher do
         Handler.maybe_invoke(conn, handler, :handle_success, [event, user])
 
       {:error, reason} ->
-        Handler.maybe_invoke(conn, handler, :handle_failure, [event, reason])
+        maybe_handle_failure(conn, handler, event, reason)
     end
   end
 
@@ -33,10 +33,10 @@ defmodule EzAuth.Dispatcher do
     case EzAuth.Accounts.create_user_with_password(user_params) do
       {:ok, {user, identity}} ->
         EzAuth.Accounts.request_email_verification(identity)
-        Handler.maybe_invoke(conn, handler, :handle_success, [{:default, :sign_up}, user])
+        maybe_handle_success(conn, handler, {:default, :sign_up}, user)
 
       {:error, reason} ->
-        Handler.maybe_invoke(conn, handler, :handle_failure, [{:default, :sign_up}, reason])
+        maybe_handle_failure(conn, handler, {:default, :sign_up}, reason)
     end
   end
 
@@ -52,5 +52,21 @@ defmodule EzAuth.Dispatcher do
     %{strategy: strategy} = conn.private.ez_auth
 
     if Config.strategy_enabled?(strategy), do: conn, else: halt(send_resp(conn, 501, ""))
+  end
+
+  defp maybe_handle_success(conn, nil, {:default, :sign_up}, _user) do
+    redirect(conn, to: Config.sign_in_path())
+  end
+
+  defp maybe_handle_success(conn, handler, event, user) do
+    Handler.maybe_invoke(conn, handler, :handle_success, [event, user])
+  end
+
+  defp maybe_handle_failure(conn, nil, _event, _reason) do
+    redirect(conn, to: Config.sign_in_path())
+  end
+
+  defp maybe_handle_failure(conn, handler, event, reason) do
+    Handler.maybe_invoke(conn, handler, :handle_failure, [event, reason])
   end
 end

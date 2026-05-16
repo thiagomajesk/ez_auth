@@ -41,6 +41,18 @@ defmodule EzAuth.DispatcherTest do
 
       assert %{assigns: %{handled: :failure}} = Dispatcher.request(conn, %{"user" => %{}})
     end
+
+    test "redirects strategy failures when no handler is configured" do
+      conn = put_ez_auth(build_conn(), strategy: Strategy, handler: nil)
+
+      expect(Strategy, :request, fn ^conn, _params ->
+        {:error, :invalid_credentials}
+      end)
+
+      conn = Dispatcher.request(conn, %{"user" => %{}})
+
+      assert redirected_to(conn) == "/sign-in"
+    end
   end
 
   describe "callback/2" do
@@ -118,6 +130,22 @@ defmodule EzAuth.DispatcherTest do
 
       assert %{assigns: %{handled: :failure}} =
                Dispatcher.sign_up(conn, %{"user" => %{"email" => "user@example.com"}})
+    end
+
+    test "redirects successful sign ups when no handler is configured" do
+      conn = put_ez_auth(build_conn(), handler: nil)
+      user = %{id: 1}
+      identity = %EzAuth.Accounts.Identity{type: :email, value: "user@example.com", user: user}
+
+      expect(Accounts, :create_user_with_password, fn %{"email" => "user@example.com"} ->
+        {:ok, {user, identity}}
+      end)
+
+      expect(Accounts, :request_email_verification, fn ^identity -> :ok end)
+
+      conn = Dispatcher.sign_up(conn, %{"user" => %{"email" => "user@example.com"}})
+
+      assert redirected_to(conn) == "/sign-in"
     end
   end
 

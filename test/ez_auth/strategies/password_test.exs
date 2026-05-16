@@ -11,7 +11,6 @@ defmodule EzAuth.Strategies.PasswordTest do
 
   describe "request/2" do
     test "signs the user in when the credentials are valid" do
-      stub_config()
       params = Map.put(build(:email_sign_in_attrs), "email", "user@example.com")
       conn = build_session_conn()
       user = %{id: 1, hashed_password: Bcrypt.hash_pwd_salt(valid_password())}
@@ -19,8 +18,7 @@ defmodule EzAuth.Strategies.PasswordTest do
       expect(Accounts, :get_user_by_email, fn "user@example.com" -> user end)
       expect(Auth, :sign_in_user, fn ^conn, ^user -> Plug.Conn.assign(conn, :signed_in, true) end)
 
-      assert {:ok, %{assigns: %{signed_in: true}}, %{id: 1}} =
-               Password.request(conn, params)
+      assert {:ok, %{assigns: %{signed_in: true}}, %{id: 1}} = Password.request(conn, params)
     end
 
     test "returns changeset errors when the sign in params are invalid" do

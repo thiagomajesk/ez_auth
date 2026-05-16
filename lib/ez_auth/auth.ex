@@ -59,6 +59,7 @@ defmodule EzAuth.Auth do
     |> renew_session()
     |> put_session(:user_token, token)
     |> put_session(:live_socket_id, live_socket_id)
+    |> redirect(to: Config.after_sign_in_path())
   end
 
   def sign_out_user(conn, _user) do
@@ -67,7 +68,7 @@ defmodule EzAuth.Auth do
 
     case EzAuth.Accounts.revoke_user_session_token(token) do
       :noop ->
-        conn
+        redirect(conn, to: Config.sign_in_path())
 
       :error ->
         conn

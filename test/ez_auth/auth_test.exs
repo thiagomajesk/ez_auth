@@ -122,7 +122,8 @@ defmodule EzAuth.AuthTest do
   end
 
   describe "sign_in_user/2" do
-    test "renews the session and stores the token state" do
+    test "renews the session, stores the token state, and redirects" do
+      stub_config(after_sign_in_path: "/dashboard")
       expect(Accounts, :generate_user_session_token, fn %{id: 1} -> "token" end)
 
       conn =
@@ -132,12 +133,14 @@ defmodule EzAuth.AuthTest do
 
       assert get_session(conn, :user_token) == "token"
       assert get_session(conn, :live_socket_id) == "auth_sessions:token"
+      assert redirected_to(conn) == "/dashboard"
       refute get_session(conn, :foo)
     end
   end
 
   describe "sign_out_user/2" do
-    test "returns the connection unchanged when no session token is present" do
+    test "redirects when no session token is present" do
+      stub_config()
       expect(Accounts, :revoke_user_session_token, fn nil -> :noop end)
 
       conn =
@@ -147,7 +150,7 @@ defmodule EzAuth.AuthTest do
         |> Auth.sign_out_user(%{id: 1})
 
       assert get_session(conn, :foo) == "bar"
-      assert get_resp_header(conn, "location") == []
+      assert redirected_to(conn) == "/sign-in"
     end
 
     test "renews the session and redirects when the token is invalid" do

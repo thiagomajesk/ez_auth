@@ -17,9 +17,8 @@ defmodule EzAuth.Strategies.Password do
     with {:ok, _user} <- Changeset.apply_action(changeset, :validate),
          {:ok, email} <- Changeset.fetch_change(changeset, :email),
          {:ok, password} <- Changeset.fetch_change(changeset, :password),
-         {:ok, user} <- get_user_by_credentials(email, password) do
-      {:ok, EzAuth.Auth.sign_in_user(conn, user), user}
-    end
+         {:ok, user} <- get_user_by_credentials(email, password),
+         do: {:ok, EzAuth.Auth.sign_in_user(conn, user), user}
   end
 
   defp get_user_by_credentials(email, password) do
