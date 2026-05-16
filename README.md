@@ -173,13 +173,13 @@ defmodule MyAppWeb.AuthHandler do
   import Phoenix.Controller
 
   @impl true
-  def handle_success(conn, :sign_up, _user) do
-    # Handles success cases for the :sign_up action
+  def handle_success(conn, {:default, :sign_up}, _user) do
+    # Handles success cases for the sign-up action
   end
 
   @impl true
-  def handle_failure(conn, :request, _reason) do
-   # Handles failure cases for the :request action
+  def handle_failure(conn, {:password, :request}, _reason) do
+    # Handles failure cases for the password request action
   end
 end
 ```
