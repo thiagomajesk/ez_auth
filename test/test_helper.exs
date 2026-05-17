@@ -1,6 +1,6 @@
 # Keep the test database lifecycle local to the test suite so EzAuth always
 # migrates from the same installer output a host application would receive.
-_ = Ecto.Adapters.Postgres.storage_down(EzAuth.TestRepo.config())
+_result = Ecto.Adapters.Postgres.storage_down(EzAuth.TestRepo.config())
 :ok = Ecto.Adapters.Postgres.storage_up(EzAuth.TestRepo.config())
 
 # Refresh the generated migrations before each test run. `--replace` updates

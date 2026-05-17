@@ -75,6 +75,20 @@ that hosts can check from `EzAuth.Scopes.UserScope` after authentication.
 | `inserted_at` | utc_datetime | record creation timestamp |
 | `updated_at` | utc_datetime | last update timestamp |
 
+### Feature Flags
+
+Feature switches that can be evaluated globally or gated by a user claim.
+
+| column | type | notes |
+|---|---|---|
+| `id` | bigint PK | auto-generated surrogate key |
+| `key` | string, NOT NULL, unique | feature identifier |
+| `description` | string, nullable | human-readable dashboard text |
+| `enabled` | boolean, NOT NULL, default `false` | global flag state |
+| `claim` | string, nullable | required claim when the flag is enabled |
+| `inserted_at` | utc_datetime | record creation timestamp |
+| `updated_at` | utc_datetime | last update timestamp |
+
 ## Structure
 
 * `lib/ez_auth.ex`: top-level integration surface (route macros, LiveView on_mount, use macro)
@@ -238,6 +252,10 @@ Sign-out revokes the current session token and broadcasts a disconnect to any Li
 ### Claims
 
 * Claims are persisted under `auth.user_claims` and loaded into `EzAuth.Scopes.UserScope` when a session is fetched. Hosts make authorization decisions with `EzAuth.Scopes.UserScope.claim?/2`; EzAuth does not choose redirects, status codes, or policy names for the host app.
+
+### Feature Flags
+
+* Feature flags are persisted under `auth.feature_flags` and evaluated with `EzAuth.FeatureFlags.enabled?/2`. Unknown flags, disabled flags, nil scopes, and missing required claims all deny by default. The dashboard is a LiveView (`EzAuth.UI.FeatureFlagsDashboard`) that host apps mount explicitly in development; EzAuth does not expose it through `auth_routes/1`.
 
 * `UI.TaskResetPassword` always revokes every session for the user and broadcasts disconnect on a successful reset. No opt-out. Recovery flows usually run because the user suspects compromise, so a reset that leaves prior sessions live defeats the point. Hosts wiring their own settings-style password change should default to the same.
 

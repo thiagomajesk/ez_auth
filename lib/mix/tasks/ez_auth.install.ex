@@ -1,4 +1,6 @@
 defmodule Mix.Tasks.EzAuth.Install do
+  @shortdoc "Copies EzAuth migrations into the host application"
+
   @moduledoc """
   Copies EzAuth migrations into the host application.
 
@@ -6,8 +8,6 @@ defmodule Mix.Tasks.EzAuth.Install do
   """
 
   use Mix.Task
-
-  @shortdoc "Copies EzAuth migrations into the host application"
 
   @impl true
   def run(args) do

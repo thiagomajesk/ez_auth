@@ -8,6 +8,7 @@ defmodule EzAuth.Test.Factory do
   alias EzAuth.Accounts.User
   alias EzAuth.Accounts.UserClaim
   alias EzAuth.Accounts.Verification
+  alias EzAuth.FeatureFlags.FeatureFlag
   alias EzAuth.TestRepo
 
   def insert_verification(user, type, value) do
@@ -64,6 +65,15 @@ defmodule EzAuth.Test.Factory do
     %UserClaim{
       user: build(:user),
       claim: sequence(:claim, &"claim:#{&1}")
+    }
+  end
+
+  def feature_flag_factory do
+    %FeatureFlag{
+      key: sequence(:feature_flag, &"feature-#{&1}"),
+      description: "Test feature",
+      enabled: false,
+      claim: nil
     }
   end
 end

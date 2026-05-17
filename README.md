@@ -171,6 +171,29 @@ end
 Claims are loaded into `conn.assigns.current_scope` by `fetch_current_scope/2`
 and into LiveViews by `EzAuth.on_mount/4`.
 
+### Feature flags
+
+Feature flags can be global or gated by a claim:
+
+```elixir
+{:ok, _flag} =
+  EzAuth.FeatureFlags.put_flag(%{
+    "key" => "new-checkout",
+    "enabled" => true,
+    "claim" => "billing:write"
+  })
+
+EzAuth.FeatureFlags.enabled?(current_scope, "new-checkout")
+```
+
+Mount the dev dashboard explicitly in your Phoenix router:
+
+```elixir
+if Mix.env() == :dev do
+  live "/dev/feature-flags", EzAuth.UI.FeatureFlagsDashboard
+end
+```
+
 ### Sender
 
 To deliver verification or recovery messages yourself, configure a sender:
