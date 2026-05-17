@@ -59,7 +59,7 @@ defmodule EzAuth.Auth do
     |> renew_session()
     |> put_session(:user_token, token)
     |> put_session(:live_socket_id, live_socket_id)
-    |> redirect(to: Config.after_sign_in_path())
+    |> redirect(to: after_sign_in_path(conn))
   end
 
   def sign_out_user(conn, _user) do
@@ -92,7 +92,12 @@ defmodule EzAuth.Auth do
 
   defp maybe_store_return_to(conn) do
     if conn.method == "GET",
-      do: put_session(conn, :user_return_to, current_path(conn)),
+      do: put_session(conn, :return_to, current_path(conn)),
       else: conn
+  end
+
+  defp after_sign_in_path(conn) do
+    return_to = get_session(conn, :return_to)
+    return_to || Config.after_sign_in_path()
   end
 end

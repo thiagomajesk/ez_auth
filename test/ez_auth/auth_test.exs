@@ -96,7 +96,7 @@ defmodule EzAuth.AuthTest do
 
       assert conn.halted
       assert redirected_to(conn) == "/sign-in"
-      assert get_session(conn, :user_return_to) == "/settings"
+      assert get_session(conn, :return_to) == "/settings"
     end
 
     test "does not overwrite the return path for non-GET requests" do
@@ -108,7 +108,7 @@ defmodule EzAuth.AuthTest do
 
       assert conn.halted
       assert redirected_to(conn) == "/sign-in"
-      refute get_session(conn, :user_return_to)
+      refute get_session(conn, :return_to)
     end
 
     test "returns the connection when the user is authenticated" do
@@ -135,6 +135,21 @@ defmodule EzAuth.AuthTest do
       assert get_session(conn, :live_socket_id) == "auth_sessions:token"
       assert redirected_to(conn) == "/dashboard"
       refute get_session(conn, :foo)
+    end
+
+    test "redirects to the stored return path" do
+      stub_config(after_sign_in_path: "/dashboard")
+      expect(Accounts, :generate_user_session_token, fn %{id: 1} -> "token" end)
+
+      conn =
+        build_conn()
+        |> init_test_session(%{return_to: "/battles"})
+        |> Auth.sign_in_user(%{id: 1})
+
+      assert get_session(conn, :user_token) == "token"
+      assert get_session(conn, :live_socket_id) == "auth_sessions:token"
+      assert redirected_to(conn) == "/battles"
+      refute get_session(conn, :return_to)
     end
   end
 
