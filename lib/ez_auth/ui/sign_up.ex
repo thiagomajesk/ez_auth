@@ -4,7 +4,11 @@ defmodule EzAuth.UI.SignUp do
 
   Renders the email + password form when `EzAuth.Strategies.Password` is
   enabled, plus a stacked list of "Continue with X" buttons for every
-  other configured strategy, in `Config.strategies/0` order.
+  other configured strategy.
+
+  Strategy order is significant. `Config.strategies/0` controls the
+  order of rendered sign-in option buttons, including the first buttons
+  shown before the user expands the full list.
 
   When `Password` is not enabled, the form section is omitted and the
   card becomes a launchpad of sign-in option buttons.

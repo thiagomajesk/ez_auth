@@ -9,8 +9,13 @@ defmodule EzAuth.UI.SignIn do
   "Continue without a password" button appears below the submit
   button so the user can skip credential entry.
 
-  Social-login buttons render below the form, in `Config.strategies/0`
-  order. Verification (post-link, post-code) is the responsibility of
+  Strategy order is significant. `Config.strategies/0` controls the
+  order of rendered buttons, and the first strategy matching the
+  detected identity is used for form submission. The "Continue without
+  a password" button applies the same rule after filtering to
+  passwordless strategies.
+
+  Verification (post-link, post-code) is the responsibility of
   `EzAuth.UI.TaskVerifyAccount`.
 
   Validation delegates to `EzAuth.Accounts.User`.
