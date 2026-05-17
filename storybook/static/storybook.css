@@ -15,6 +15,7 @@
   max-width: 28rem;
   margin: 0 auto;
   padding: 2rem;
+  color: #111;
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 0.75rem;
@@ -95,15 +96,22 @@
 [data-part="label"] {
   font-size: 0.875rem;
   font-weight: 500;
+  color: #111;
 }
 
 [data-part="input"] {
   width: 100%;
   padding: 0.5rem 0.75rem;
   font: inherit;
+  color: #111;
+  background: #fff;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   box-sizing: border-box;
+}
+
+[data-part="input"]::placeholder {
+  color: #9ca3af;
 }
 
 [data-part="input"]:focus {
@@ -351,4 +359,3 @@
   height: 1rem;
   accent-color: #111;
 }
-
