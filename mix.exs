@@ -26,7 +26,7 @@ defmodule EzAuth.MixProject do
 
   defp aliases do
     [
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      test: ["test"],
       quality: ["format --check-formatted", "compile --warnings-as-errors", "credo --strict"],
       storybook: ["run --no-halt -e 'EzAuth.Storybook.run()'"]
     ]
