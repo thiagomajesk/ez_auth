@@ -8,6 +8,7 @@ defmodule EzAuth.Accounts do
   alias EzAuth.Accounts.Identity
   alias EzAuth.Accounts.Session
   alias EzAuth.Accounts.User
+  alias EzAuth.Accounts.UserClaim
   alias EzAuth.Accounts.Verification
   alias EzAuth.Config
   alias EzAuth.Scopes.SenderScope
@@ -82,6 +83,21 @@ defmodule EzAuth.Accounts do
     token
   end
 
+  @doc """
+  Grants a claim to the user.
+  """
+  def grant_user_claim(%User{} = user, claim) do
+    case Config.repo!().one(UserClaim.user_claim_query(user, claim)) do
+      nil ->
+        user
+        |> UserClaim.changeset(claim)
+        |> Config.repo!().insert()
+
+      user_claim ->
+        {:ok, user_claim}
+    end
+  end
+
   def get_user_by_email(email) do
     Config.repo!().one(User.by_identity_query(:email, email))
   end
@@ -117,6 +133,16 @@ defmodule EzAuth.Accounts do
       nil -> {:error, :not_found}
       identity -> {:ok, {identity.user, identity}}
     end
+  end
+
+  @doc """
+  Lists the user's granted claims.
+  """
+  def list_user_claims(%User{} = user) do
+    user
+    |> UserClaim.by_user_query()
+    |> Config.repo!().all()
+    |> Enum.map(& &1.claim)
   end
 
   def email_taken?(email) do
@@ -195,6 +221,13 @@ defmodule EzAuth.Accounts do
   """
   def revoke_user_sessions(%User{} = user) do
     Config.repo!().delete_all(Session.by_user_query(user))
+  end
+
+  @doc """
+  Revokes a claim from the user.
+  """
+  def revoke_user_claim(%User{} = user, claim) do
+    Config.repo!().delete_all(UserClaim.user_claim_query(user, claim))
   end
 
   @doc """

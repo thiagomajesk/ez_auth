@@ -32,5 +32,24 @@ defmodule EzAuth.ScopesTest do
 
       assert %UserScope{user: ^user} = UserScope.new(user)
     end
+
+    test "wraps claims" do
+      user = %{id: 1}
+
+      assert %UserScope{claims: ["admin"]} = UserScope.new(user, ["admin"])
+    end
+  end
+
+  describe "EzAuth.Scopes.UserScope.claim?/2" do
+    test "returns true when the scope has the claim" do
+      scope = UserScope.new(%{id: 1}, ["admin"])
+
+      assert UserScope.claim?(scope, "admin")
+    end
+
+    test "returns false for nil scopes and missing claims" do
+      refute UserScope.claim?(nil, "admin")
+      refute UserScope.claim?(UserScope.new(%{id: 1}, []), "admin")
+    end
   end
 end

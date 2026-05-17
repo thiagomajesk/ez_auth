@@ -179,6 +179,41 @@ defmodule EzAuth.AccountsTest do
     end
   end
 
+  describe "grant_user_claim/2 and revoke_user_claim/2" do
+    test "grants, lists, and revokes user claims" do
+      base_config()
+      user = insert(:user)
+
+      assert {:ok, %{claim: "billing:write"}} = Accounts.grant_user_claim(user, "billing:write")
+      assert {:ok, %{claim: "admin"}} = Accounts.grant_user_claim(user, "admin")
+
+      assert Accounts.list_user_claims(user) == ["admin", "billing:write"]
+
+      assert {1, _claims} = Accounts.revoke_user_claim(user, "admin")
+      assert Accounts.list_user_claims(user) == ["billing:write"]
+    end
+
+    test "granting the same claim is idempotent" do
+      base_config()
+      user = insert(:user)
+
+      assert {:ok, first} = Accounts.grant_user_claim(user, "admin")
+      assert {:ok, second} = Accounts.grant_user_claim(user, "admin")
+
+      assert first.id == second.id
+      assert Accounts.list_user_claims(user) == ["admin"]
+    end
+  end
+
+  describe "list_user_claims/1" do
+    test "returns an empty list when the user has no claims" do
+      base_config()
+      user = insert(:user)
+
+      assert Accounts.list_user_claims(user) == []
+    end
+  end
+
   describe "get_user_by_session_token/1" do
     test "returns :error for malformed tokens" do
       base_config()

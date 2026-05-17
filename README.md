@@ -156,6 +156,21 @@ end
 
 Add these only when your app wants to customize message delivery or the HTTP response after EzAuth actions.
 
+### Claims
+
+Grant claims through `EzAuth.Accounts` and check them from the current scope:
+
+```elixir
+{:ok, _claim} = EzAuth.Accounts.grant_user_claim(user, "billing:write")
+
+if EzAuth.Scopes.UserScope.claim?(current_scope, "billing:write") do
+  # Allow access to billing changes.
+end
+```
+
+Claims are loaded into `conn.assigns.current_scope` by `fetch_current_scope/2`
+and into LiveViews by `EzAuth.on_mount/4`.
+
 ### Sender
 
 To deliver verification or recovery messages yourself, configure a sender:

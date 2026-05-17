@@ -15,13 +15,14 @@ defmodule EzAuth.AuthTest do
       user = %{id: 1}
 
       expect(Accounts, :get_user_by_session_token, fn "token" -> user end)
+      expect(Accounts, :list_user_claims, fn ^user -> ["admin"] end)
 
       conn =
         build_conn()
         |> init_test_session(%{user_token: "token"})
         |> Auth.fetch_current_scope()
 
-      assert %UserScope{user: ^user} = conn.assigns.current_scope
+      assert %UserScope{user: ^user, claims: ["admin"]} = conn.assigns.current_scope
     end
 
     test "assigns nil without clearing the session when token decoding fails" do
