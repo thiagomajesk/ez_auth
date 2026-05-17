@@ -1,14 +1,21 @@
 defmodule EzAuth.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
+  @url "https://github.com/thiagomajesk/ez_auth"
+
   def project do
     [
       app: :ez_auth,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.19",
       start_permanent: Mix.env() == :prod,
+      description: description(),
+      package: package(),
+      docs: docs(),
       elixirc_paths: elixirc_paths(Mix.env()),
       aliases: aliases(),
+      name: "EzAuth",
       deps: deps()
     ]
   end
@@ -17,6 +24,30 @@ defmodule EzAuth.MixProject do
   def application do
     [
       extra_applications: [:logger]
+    ]
+  end
+
+  defp description do
+    "Opinionated and batteries-included authentication for Phoenix applications."
+  end
+
+  defp package do
+    [
+      maintainers: ["Thiago Majesk Goulart"],
+      licenses: ["AGPL-3.0-only"],
+      links: %{"GitHub" => @url}
+    ]
+  end
+
+  defp docs do
+    [
+      source_ref: "v#{@version}",
+      main: "README",
+      source_url: @url,
+      extras: [
+        "README.md": [filename: "README"],
+        "docs/ARCHITECTURE.md": [filename: "architecture"]
+      ]
     ]
   end
 
@@ -46,6 +77,7 @@ defmodule EzAuth.MixProject do
       {:postgrex, "~> 0.19", only: :test},
       {:mimic, "~> 1.11", only: :test},
       {:ex_machina, "~> 2.8", only: :test},
+      {:ex_doc, "~> 0.40.2", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
