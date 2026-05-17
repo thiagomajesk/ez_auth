@@ -81,14 +81,14 @@ defmodule EzAuth.Accounts.User do
     |> validate_phone_format()
   end
 
-  def sign_up_changeset(attrs) do
+  def sign_up_changeset(attrs, opts \\ []) do
     %User{}
     |> cast(attrs, [:email, :password])
     |> validate_required([:email, :password])
     |> validate_email_format()
     |> validate_password_format()
     |> maybe_validate_email_available()
-    |> maybe_hash_password()
+    |> maybe_hash_password(opts)
   end
 
   defp validate_profile_name(changeset) do
@@ -189,15 +189,20 @@ defmodule EzAuth.Accounts.User do
     end
   end
 
-  defp maybe_hash_password(changeset) do
+  defp maybe_hash_password(changeset, opts \\ []) do
+    hash_password? = Keyword.get(opts, :hash_password, true)
+
     case get_change(changeset, :password) do
       nil ->
         changeset
 
-      password ->
+      password when hash_password? ->
         changeset
         |> delete_change(:password)
         |> put_change(:hashed_password, Bcrypt.hash_pwd_salt(password))
+
+      _password ->
+        changeset
     end
   end
 end

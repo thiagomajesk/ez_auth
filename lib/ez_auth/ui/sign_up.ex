@@ -119,7 +119,7 @@ defmodule EzAuth.UI.SignUp do
 
   @impl true
   def handle_event("change", %{"user" => user_params}, socket) do
-    changeset = sign_up_changeset(user_params)
+    changeset = sign_up_changeset(user_params, hash_password: false)
     {:noreply, assign(socket, :form, to_form(changeset))}
   end
 
@@ -159,7 +159,7 @@ defmodule EzAuth.UI.SignUp do
   defp show_sign_in_options?(assigns),
     do: not assigns.show_more_options and sign_in_options(assigns.strategies) != []
 
-  defp sign_up_changeset(attrs), do: User.sign_up_changeset(attrs)
+  defp sign_up_changeset(attrs, opts \\ []), do: User.sign_up_changeset(attrs, opts)
 
   defp visible_sign_in_options(strategies),
     do: Enum.take(sign_in_options(strategies), @visible_options)

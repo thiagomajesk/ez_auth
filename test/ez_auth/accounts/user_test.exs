@@ -24,6 +24,19 @@ defmodule EzAuth.Accounts.UserTest do
       assert Bcrypt.verify_pass(attrs["password"], hashed)
     end
 
+    test "keeps the password unhashed when hashing is disabled" do
+      attrs =
+        :email_sign_up_attrs
+        |> build()
+        |> Map.put("email", "new@example.com")
+
+      changeset = User.sign_up_changeset(attrs, hash_password: false)
+
+      assert changeset.valid?
+      assert changeset.changes.password == attrs["password"]
+      refute Map.has_key?(changeset.changes, :hashed_password)
+    end
+
     test "rejects invalid email formats" do
       attrs = Map.put(build(:email_sign_up_attrs), "email", "not-an-email")
 
