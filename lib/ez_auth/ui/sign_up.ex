@@ -2,11 +2,11 @@ defmodule EzAuth.UI.SignUp do
   @moduledoc """
   Sign-up form as a LiveComponent.
 
-  Renders the email + password form when `EzAuth.Strategies.Password` is
-  enabled, plus a stacked list of "Continue with X" buttons for every
-  other configured strategy.
+  Renders the email + password form when the password strategy is enabled, plus
+  a stacked list of "Continue with X" buttons for every other configured
+  strategy.
 
-  Strategy order is significant. `Config.strategies/0` controls the
+  Strategy order is significant. `EzAuth.Config.strategies/0` controls the
   order of rendered sign-in option buttons, including the first buttons
   shown before the user expands the full list.
 

@@ -201,7 +201,7 @@ Sign-out revokes the current session token and broadcasts a disconnect to any Li
 
 * Profile fields (`name`, `username`, `metadata`) are not collected by the standard sign-up flow. EzAuth's UI and changesets only collect what's needed to authenticate: email + password for the password strategy, the appropriate identifier for passwordless. This avoids the uniqueness-reservation lifecycle a "complete your profile at sign-up" flow would introduce, especially for OAuth where providers vary in what they return.
 
-* Hosts collect profile data on their own terms via `Accounts.update_user_profile/2`, typically in a post-login step. The function casts `:name`, `:username`, and `:metadata` through `User.profile_changeset/2` and reuses the same format/length rules configured under `Config.name_format/0`, `Config.username_format/0`, etc.
+* Hosts collect profile data on their own terms via `Accounts.update_user_profile/2`, typically in a post-login step. The function casts `:name`, `:username`, and `:metadata` through `User.profile_changeset/2` and reuses the same format/length rules configured under `EzAuth.Config.name_format/0`, `EzAuth.Config.username_format/0`, etc.
 
 * `users.username` keeps its unique index. The changeset performs an optimistic availability check via `Accounts.username_taken?/1`; the database-level unique constraint is the source of truth, and a conflict at insert time is what the host repairs.
 

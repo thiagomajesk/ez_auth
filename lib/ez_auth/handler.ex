@@ -1,5 +1,11 @@
 defmodule EzAuth.Handler do
-  @moduledoc false
+  @moduledoc """
+  Customizes HTTP responses after EzAuth actions.
+
+  Configure a handler with `auth_routes(handler: MyAppWeb.AuthHandler)` when
+  your Phoenix app needs to add flashes, redirect somewhere specific, or render
+  a custom response after an authentication action.
+  """
 
   @callback handle_success(
               conn :: struct(),
