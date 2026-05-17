@@ -151,6 +151,14 @@ defmodule EzAuth.Accounts do
   end
 
   @doc """
+  Issues an SMS OTP code for the given identity.
+  """
+  def request_sms_otp(%Identity{} = identity) do
+    {code, _verification} = create_verification(identity.user, :phone, identity.value)
+    Sender.maybe_invoke(Config.sender(), :sms_otp, SenderScope.new(identity.user, code))
+  end
+
+  @doc """
   Issues an identity verification token and dispatches it through the configured sender.
   """
   def issue_identity_verification(%Identity{} = identity, type) do
@@ -219,6 +227,13 @@ defmodule EzAuth.Accounts do
   """
   def verify_email_otp(code, email) do
     verify_magic_code(code, :email_otp, email)
+  end
+
+  @doc """
+  Verifies an SMS OTP code and consumes it.
+  """
+  def verify_sms_otp(code, phone) do
+    verify_magic_code(code, :phone, phone)
   end
 
   defp create_identity(%User{} = user, type, value) do

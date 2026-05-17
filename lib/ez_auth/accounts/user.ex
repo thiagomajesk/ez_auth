@@ -89,6 +89,13 @@ defmodule EzAuth.Accounts.User do
     |> validate_phone_format()
   end
 
+  def sign_in_with_phone_code_changeset(attrs) do
+    %User{}
+    |> cast(attrs, [:phone, :code])
+    |> validate_required([:phone, :code])
+    |> validate_phone_format()
+  end
+
   def sign_up_changeset(attrs, opts \\ []) do
     %User{}
     |> cast(attrs, [:email, :password])

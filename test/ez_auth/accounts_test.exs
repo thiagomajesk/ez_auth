@@ -391,6 +391,26 @@ defmodule EzAuth.AccountsTest do
     end
   end
 
+  describe "request_sms_otp/1" do
+    test "creates a phone verification and dispatches the code" do
+      base_config(%{sender: Sender})
+
+      %{user: %User{id: user_id}} =
+        identity = insert(:identity, type: :phone, value: "+15551234567", verified_at: nil)
+
+      expect(Sender, :deliver, fn :sms_otp, %SenderScope{user: %User{id: ^user_id}} = scope ->
+        assert {:ok, code} = Base.url_decode64(scope.token, padding: false)
+        assert code =~ ~r/^\d{6}$/
+        :ok
+      end)
+
+      assert :ok = Accounts.request_sms_otp(identity)
+
+      assert %Verification{user_id: ^user_id, type: :phone} =
+               QueryHelpers.fetch_verification!(TestRepo, :phone, "+15551234567")
+    end
+  end
+
   describe "verify_magic_link/2" do
     test "marks the identity as verified and consumes the token" do
       base_config()
@@ -546,6 +566,35 @@ defmodule EzAuth.AccountsTest do
       {code, _verification} = insert_verification(user, :email_otp, "otp@example.com")
 
       assert {:error, :invalid_token} = Accounts.verify_email_otp(code, "other@example.com")
+    end
+  end
+
+  describe "verify_sms_otp/2" do
+    test "marks the phone identity as verified and consumes the code" do
+      base_config()
+
+      %{user: %User{id: user_id} = user} =
+        insert(:identity, type: :phone, value: "+15551234567", verified_at: nil)
+
+      {code, _verification} = insert_verification(user, :phone, "+15551234567")
+
+      assert {:ok, %Verification{user: %User{id: ^user_id}}} =
+               Accounts.verify_sms_otp(code, "+15551234567")
+
+      assert QueryHelpers.fetch_identity!(TestRepo, :phone, "+15551234567").verified_at
+
+      assert_raise Ecto.NoResultsError, fn ->
+        QueryHelpers.fetch_verification!(TestRepo, :phone, "+15551234567")
+      end
+    end
+
+    test "returns :invalid_token when phone does not match the verification" do
+      base_config()
+
+      %{user: user} = insert(:identity, type: :phone, value: "+15551234567", verified_at: nil)
+      {code, _verification} = insert_verification(user, :phone, "+15551234567")
+
+      assert {:error, :invalid_token} = Accounts.verify_sms_otp(code, "+15557654321")
     end
   end
 
