@@ -30,11 +30,17 @@ defmodule EzAuth.Accounts.Token do
   end
 
   defp generate_code(digits) do
-    fun = fn -> Enum.random(0..9) end
-
-    fun
+    fn -> Integer.to_string(random_digit()) end
     |> Stream.repeatedly()
     |> Enum.take(digits)
     |> Enum.join()
+  end
+
+  defp random_digit do
+    <<value>> = :crypto.strong_rand_bytes(1)
+
+    if value < 250,
+      do: rem(value, 10),
+      else: random_digit()
   end
 end

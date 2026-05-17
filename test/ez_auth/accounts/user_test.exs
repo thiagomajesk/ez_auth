@@ -283,6 +283,27 @@ defmodule EzAuth.Accounts.UserTest do
     end
   end
 
+  describe "sign_in_with_email_code_changeset/1" do
+    test "is valid with a well-formed email and code" do
+      changeset =
+        User.sign_in_with_email_code_changeset(%{
+          "email" => "user@example.com",
+          "code" => "123456"
+        })
+
+      assert %Ecto.Changeset{valid?: true, changes: changes} = changeset
+      assert changes.email == "user@example.com"
+      assert changes.code == "123456"
+    end
+
+    test "requires the code" do
+      changeset = User.sign_in_with_email_code_changeset(%{"email" => "user@example.com"})
+
+      refute changeset.valid?
+      assert {"can't be blank", _meta} = Keyword.fetch!(changeset.errors, :code)
+    end
+  end
+
   describe "sign_in_with_phone_changeset/1" do
     test "is valid with an E.164 phone" do
       changeset = User.sign_in_with_phone_changeset(%{"phone" => "+15551234567"})

@@ -236,6 +236,26 @@ defmodule EzAuth.AccountsTest do
     end
   end
 
+  describe "request_email_otp/1" do
+    test "creates an email OTP verification and dispatches the code" do
+      base_config(%{sender: Sender})
+
+      %{user: %User{id: user_id}} =
+        identity = insert(:identity, value: "alice@example.com", verified_at: nil)
+
+      expect(Sender, :deliver, fn :email_otp, %SenderScope{user: %User{id: ^user_id}} = scope ->
+        assert {:ok, code} = Base.url_decode64(scope.token, padding: false)
+        assert code =~ ~r/^\d{6}$/
+        :ok
+      end)
+
+      assert :ok = Accounts.request_email_otp(identity)
+
+      assert %Verification{user_id: ^user_id, type: :email_otp} =
+               QueryHelpers.fetch_verification!(TestRepo, :email_otp, "alice@example.com")
+    end
+  end
+
   describe "revoke_user_session_token/1" do
     test "returns :error for malformed tokens" do
       base_config()
@@ -497,6 +517,35 @@ defmodule EzAuth.AccountsTest do
 
       assert {:error, :invalid_token} =
                Accounts.verify_magic_code("bogus", :recovery, "anyone@example.com")
+    end
+  end
+
+  describe "verify_email_otp/2" do
+    test "marks the email identity as verified and consumes the code" do
+      base_config()
+
+      %{user: %User{id: user_id} = user} =
+        insert(:identity, value: "otp@example.com", verified_at: nil)
+
+      {code, _verification} = insert_verification(user, :email_otp, "otp@example.com")
+
+      assert {:ok, %Verification{user: %User{id: ^user_id}}} =
+               Accounts.verify_email_otp(code, "otp@example.com")
+
+      assert QueryHelpers.fetch_identity!(TestRepo, :email, "otp@example.com").verified_at
+
+      assert_raise Ecto.NoResultsError, fn ->
+        QueryHelpers.fetch_verification!(TestRepo, :email_otp, "otp@example.com")
+      end
+    end
+
+    test "returns :invalid_token when email does not match the verification" do
+      base_config()
+
+      %{user: user} = insert(:identity, value: "otp@example.com", verified_at: nil)
+      {code, _verification} = insert_verification(user, :email_otp, "otp@example.com")
+
+      assert {:error, :invalid_token} = Accounts.verify_email_otp(code, "other@example.com")
     end
   end
 

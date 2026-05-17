@@ -15,18 +15,20 @@ defmodule EzAuthTest do
     end
 
     test "raises at compile time when wrapped in a scope that sets :path" do
-      assert_raise CompileError, ~r/auth_routes\/1 must be invoked at the router's top level/, fn ->
-        compile_router("""
-        defmodule #{router_name()} do
-          use Phoenix.Router
-          use EzAuth
+      assert_raise CompileError,
+                   ~r/auth_routes\/1 must be invoked at the router's top level/,
+                   fn ->
+                     compile_router("""
+                     defmodule #{router_name()} do
+                       use Phoenix.Router
+                       use EzAuth
 
-          scope "/admin" do
-            auth_routes(handler: Some.Handler)
-          end
-        end
-        """)
-      end
+                       scope "/admin" do
+                         auth_routes(handler: Some.Handler)
+                       end
+                     end
+                     """)
+                   end
     end
 
     test "raises at compile time when wrapped in a scope that sets :alias" do

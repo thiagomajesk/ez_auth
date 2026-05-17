@@ -9,6 +9,7 @@ defmodule EzAuth.Accounts.Verification do
 
   @types [
     :email,
+    :email_otp,
     :phone,
     :recovery,
     :email_change,
@@ -70,6 +71,7 @@ defmodule EzAuth.Accounts.Verification do
     end
   end
 
+  defp build_token(:email_otp), do: Token.build_verification_code()
   defp build_token(:recovery), do: Token.build_verification_code()
   defp build_token(_type), do: Token.build_verification_link()
 

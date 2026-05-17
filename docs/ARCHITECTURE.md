@@ -56,7 +56,7 @@ Single-use challenges tied to an auth flow. Immutable after insert, except that 
 |---|---|---|
 | `id` | bigint PK | auto-generated surrogate key |
 | `user_id` | bigint FK -> users, NOT NULL, cascade | owning user |
-| `type` | Ecto.Enum, NOT NULL | verification kind: `:email`, `:phone`, `:recovery`, `:email_change`, `:phone_change` |
+| `type` | Ecto.Enum, NOT NULL | verification kind: `:email`, `:email_otp`, `:phone`, `:recovery`, `:email_change`, `:phone_change` |
 | `token` | string, NOT NULL, unique | SHA-256 hash of the raw token or code |
 | `value` | string, nullable | flow-specific payload (e.g., the email being verified) |
 | `expires_at` | utc_datetime, NOT NULL | hard expiry after which the token is invalid |

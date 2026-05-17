@@ -20,6 +20,7 @@ defmodule EzAuth.Accounts.User do
     field(:hashed_password, :string, redact: true)
 
     field(:email, :string, virtual: true)
+    field(:code, :string, virtual: true)
     field(:phone, :string, virtual: true)
     field(:password, :string, virtual: true, redact: true)
     field(:password_confirmation, :string, virtual: true, redact: true)
@@ -71,6 +72,13 @@ defmodule EzAuth.Accounts.User do
     %User{}
     |> cast(attrs, [:email])
     |> validate_required([:email])
+    |> validate_email_format()
+  end
+
+  def sign_in_with_email_code_changeset(attrs) do
+    %User{}
+    |> cast(attrs, [:email, :code])
+    |> validate_required([:email, :code])
     |> validate_email_format()
   end
 

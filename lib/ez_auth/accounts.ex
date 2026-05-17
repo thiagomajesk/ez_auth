@@ -127,6 +127,14 @@ defmodule EzAuth.Accounts do
   end
 
   @doc """
+  Issues an email OTP code for the given identity.
+  """
+  def request_email_otp(%Identity{} = identity) do
+    {code, _verification} = create_verification(identity.user, :email_otp, identity.value)
+    Sender.maybe_invoke(Config.sender(), :email_otp, SenderScope.new(identity.user, code))
+  end
+
+  @doc """
   Issues a recovery code and dispatches it via the configured sender.
 
   Returns `:ok` even when the email is unknown, so callers cannot probe for account existence.
@@ -206,6 +214,13 @@ defmodule EzAuth.Accounts do
          do: consume_verification(Config.repo!().one(query))
   end
 
+  @doc """
+  Verifies an email OTP code and consumes it.
+  """
+  def verify_email_otp(code, email) do
+    verify_magic_code(code, :email_otp, email)
+  end
+
   defp create_identity(%User{} = user, type, value) do
     user
     |> Identity.changeset(type, value)
@@ -226,12 +241,12 @@ defmodule EzAuth.Accounts do
   defp consume_verification(nil), do: {:error, :invalid_token}
 
   defp consume_verification(%Verification{type: type} = verification)
-       when type not in [:email, :phone],
+       when type not in [:email, :email_otp, :phone],
        do: {:ok, Config.repo!().delete!(verification)}
 
   defp consume_verification(%Verification{} = verification) do
     %{user: user, type: type, value: value} = verification
-    query = Identity.update_verified_at_query(user, type, value)
+    query = Identity.update_verified_at_query(user, identity_type(type), value)
 
     multi =
       Ecto.Multi.new()
@@ -246,4 +261,7 @@ defmodule EzAuth.Accounts do
         {:ok, Map.fetch!(changes, :delete)}
     end
   end
+
+  defp identity_type(:email_otp), do: :email
+  defp identity_type(type), do: type
 end
