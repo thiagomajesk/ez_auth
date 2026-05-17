@@ -183,9 +183,13 @@ Sign-out revokes the current session token and broadcasts a disconnect to any Li
 
 ### Identities
 
-* Only verified identities count as taken. Multiple people can sign up with the same email or phone while it's unverified; whoever verifies first claims the slot. Later verification attempts for the same value fail with `{:error, :already_claimed}`, and signing up against an already-verified value is rejected upfront. Usernames live on `users.username` with a database-level unique constraint; there is no verification step for them.
+* Only verified identities count as taken. Multiple people can sign up with the same email or phone while it's unverified; whoever verifies first claims the identity. Later verification attempts for the same value fail with `{:error, :already_claimed}`, and signing up against an already-verified value is rejected upfront. This avoids identity parking: an abandoned sign-up or malicious reservation cannot permanently block the real owner of an email or phone.
 
-* EzAuth does not clean up unverified identities left behind by abandoned sign-ups, typos, or verification races. Your app should handle cleanup and offer a recovery UI (for example, letting the user re-enter their email and verify again); the right policy depends on your domain.
+* If sender delivery fails after sign-up, the user might be locked out because they never received the initial verification email and cannot request a new verification link through password recovery. Recovery only works for verified identities, so the system needs to handle delivery retries on its own.
+
+* EzAuth does not clean up unverified identities left behind by abandoned sign-ups, failed deliveries, or verification races. Your system should clean up stale unverified identities and their users so the real owner can sign up again and receive a fresh verification link. EzAuth does not pick the cleanup policy for the host because retention windows, sender reliability, and abuse controls vary by app.
+
+* Usernames live on `users.username` with a database-level unique constraint; there is no verification step for them.
 
 * Email verification and email magic-link sign-in use the same trust boundary: control of the inbox proves both ownership and authentication. Redeeming a valid email token may verify the identity *and* create a session in one step. If you need email confirmation without sign-in, enforce that separation in your app.
 
