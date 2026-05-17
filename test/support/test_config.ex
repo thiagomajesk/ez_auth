@@ -9,6 +9,8 @@ defmodule EzAuth.TestConfig do
     email_max_length
     endpoint!
     gettext_backend
+    github_client_id!
+    github_client_secret!
     magic_link_validity_in_minutes
     name_format
     name_max_length
@@ -34,6 +36,8 @@ defmodule EzAuth.TestConfig do
     sender: EzAuth.Test.Sender,
     endpoint: EzAuth.Test.Endpoint,
     gettext_backend: nil,
+    github_client_id: "github-client-id",
+    github_client_secret: "github-client-secret",
     strategies: [],
     sign_in_path: "/sign-in",
     sign_up_path: "/sign-up",

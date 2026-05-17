@@ -90,6 +90,7 @@ defmodule EzAuth.UI.SignUpTest do
       html = render_component(SignUp, id: "sign-up")
 
       assert html =~ "Continue with Google"
+      assert html =~ ~s(action="/auth/google/request")
     end
 
     test "truncates the sign-in options list to 3 entries by default" do

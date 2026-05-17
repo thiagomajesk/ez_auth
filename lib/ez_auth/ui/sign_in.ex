@@ -105,7 +105,14 @@ defmodule EzAuth.UI.SignIn do
         <hr data-part="divider" />
 
         <div data-part="social-providers" data-stacked>
-          <Buttons.strategy :for={strategy <- social_strategies(@strategies)} strategy={strategy} />
+          <.form
+            :for={strategy <- social_strategies(@strategies)}
+            for={%{}}
+            action={strategy_request_path(strategy)}
+            method="post"
+          >
+            <Buttons.strategy strategy={strategy} />
+          </.form>
         </div>
 
         <:footer>
@@ -207,6 +214,8 @@ defmodule EzAuth.UI.SignIn do
     if strategy = Enum.find(strategies, &(&1.__meta__(:identity) == identity)),
       do: "/auth/#{Strategy.slug(strategy)}/request"
   end
+
+  defp strategy_request_path(strategy), do: "/auth/#{Strategy.slug(strategy)}/request"
 
   defp disable_submit?(assigns),
     do: request_path(assigns.strategies, assigns.detected) == nil

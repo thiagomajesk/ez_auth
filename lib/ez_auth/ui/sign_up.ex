@@ -29,6 +29,7 @@ defmodule EzAuth.UI.SignUp do
   alias Ecto.Changeset
   alias EzAuth.Accounts.User
   alias EzAuth.Config
+  alias EzAuth.Strategy
   alias EzAuth.UI.Core
   alias EzAuth.UI.Core.Buttons
   alias EzAuth.UI.Core.Inputs
@@ -60,10 +61,14 @@ defmodule EzAuth.UI.SignUp do
         <hr :if={show_divider?(assigns)} data-part="divider" />
 
         <div :if={show_sign_in_options?(assigns)} data-part="sign-in-options">
-          <Buttons.strategy
+          <.form
             :for={strategy <- visible_sign_in_options(@strategies)}
-            strategy={strategy}
-          />
+            for={%{}}
+            action={strategy_request_path(strategy)}
+            method="post"
+          >
+            <Buttons.strategy strategy={strategy} />
+          </.form>
 
           <button
             :if={has_more_sign_in_options?(@strategies)}
@@ -77,7 +82,14 @@ defmodule EzAuth.UI.SignUp do
         </div>
 
         <div :if={@show_more_options} data-part="sign-in-options">
-          <Buttons.strategy :for={strategy <- sign_in_options(@strategies)} strategy={strategy} />
+          <.form
+            :for={strategy <- sign_in_options(@strategies)}
+            for={%{}}
+            action={strategy_request_path(strategy)}
+            method="post"
+          >
+            <Buttons.strategy strategy={strategy} />
+          </.form>
 
           <button
             type="button"
@@ -160,6 +172,8 @@ defmodule EzAuth.UI.SignUp do
     do: not assigns.show_more_options and sign_in_options(assigns.strategies) != []
 
   defp sign_up_changeset(attrs, opts \\ []), do: User.sign_up_changeset(attrs, opts)
+
+  defp strategy_request_path(strategy), do: "/auth/#{Strategy.slug(strategy)}/request"
 
   defp visible_sign_in_options(strategies),
     do: Enum.take(sign_in_options(strategies), @visible_options)

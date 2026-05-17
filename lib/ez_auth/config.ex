@@ -25,6 +25,10 @@ defmodule EzAuth.Config do
 
   def gettext_backend, do: env(:gettext_backend, :atom)
 
+  def github_client_id!, do: env!(:github_client_id, :string)
+
+  def github_client_secret!, do: env!(:github_client_secret, :string)
+
   def magic_link_validity_in_minutes, do: env(:magic_link_validity_in_minutes, :integer, 15)
 
   def name_format,

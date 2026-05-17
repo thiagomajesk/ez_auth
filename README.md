@@ -48,6 +48,19 @@ config :ez_auth,
   strategies: [EzAuth.Strategies.Password]
 ```
 
+To enable GitHub sign-in, add the strategy and configure your OAuth app
+credentials:
+
+```elixir
+config :ez_auth,
+  github_client_id: System.fetch_env!("GITHUB_CLIENT_ID"),
+  github_client_secret: System.fetch_env!("GITHUB_CLIENT_SECRET"),
+  strategies: [EzAuth.Strategies.Password, EzAuth.Strategies.GitHub]
+```
+
+Set the GitHub OAuth callback URL to
+`https://your-host.example/auth/github/callback`.
+
 ### Step 3 - Update your router
 
 Add `use EzAuth` to your Router so the helpers are imported:
