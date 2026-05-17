@@ -61,6 +61,18 @@ config :ez_auth,
 Set the GitHub OAuth callback URL to
 `https://your-host.example/auth/github/callback`.
 
+Google sign-in uses the same shape:
+
+```elixir
+config :ez_auth,
+  google_client_id: System.fetch_env!("GOOGLE_CLIENT_ID"),
+  google_client_secret: System.fetch_env!("GOOGLE_CLIENT_SECRET"),
+  strategies: [EzAuth.Strategies.Password, EzAuth.Strategies.Google]
+```
+
+Set the Google OAuth callback URL to
+`https://your-host.example/auth/google/callback`.
+
 ### Step 3 - Update your router
 
 Add `use EzAuth` to your Router so the helpers are imported:

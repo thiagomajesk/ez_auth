@@ -11,6 +11,8 @@ defmodule EzAuth.TestConfig do
     gettext_backend
     github_client_id!
     github_client_secret!
+    google_client_id!
+    google_client_secret!
     magic_link_validity_in_minutes
     name_format
     name_max_length
@@ -38,6 +40,8 @@ defmodule EzAuth.TestConfig do
     gettext_backend: nil,
     github_client_id: "github-client-id",
     github_client_secret: "github-client-secret",
+    google_client_id: "google-client-id",
+    google_client_secret: "google-client-secret",
     strategies: [],
     sign_in_path: "/sign-in",
     sign_up_path: "/sign-up",

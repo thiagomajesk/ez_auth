@@ -34,6 +34,8 @@ defmodule EzAuth.ConfigTest do
       for {fun, key} <- [
             {&Config.github_client_id!/0, :github_client_id},
             {&Config.github_client_secret!/0, :github_client_secret},
+            {&Config.google_client_id!/0, :google_client_id},
+            {&Config.google_client_secret!/0, :google_client_secret},
             {&Config.repo!/0, :repo},
             {&Config.endpoint!/0, :endpoint}
           ] do
