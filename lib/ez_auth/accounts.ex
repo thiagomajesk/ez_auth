@@ -152,6 +152,22 @@ defmodule EzAuth.Accounts do
   end
 
   @doc """
+  Issues a phone verification code for the given identity.
+  """
+  def request_phone_verification_code(%Identity{} = identity) do
+    token =
+      Token.build_verification_token(
+        format: :code,
+        size: Config.recovery_code_length(),
+        validity: Config.recovery_code_validity_in_minutes()
+      )
+
+    insert_verification(identity.user, :phone, identity.value, token)
+
+    Sender.maybe_invoke(Config.sender(), :sms_otp, {identity.user, token})
+  end
+
+  @doc """
   Issues a recovery code and dispatches it via the configured sender.
 
   Returns `:ok` even when the email is unknown, so callers cannot probe for account existence.
