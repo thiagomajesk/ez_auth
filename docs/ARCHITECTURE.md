@@ -95,17 +95,17 @@ Sign-up is **email + password only**. Passwordless flows (`magic_link`, `sms_otp
 ```
 Dispatcher.sign_up/2
 ├── Accounts.create_user_with_password/1
-├── Accounts.request_email_verification/1
+├── Accounts.request_email_verification_link/1
 └── Handler.handle_success/3
 ```
 
-The user, their email identity, and a verification token are created together. The raw token is never returned to the caller; it dispatches out-of-band through the configured `EzAuth.Sender`. The password confirmation URL is built through `EzAuth.Scopes.SenderScope.password_confirmation/1` and points at `/auth/password/callback?token=...`.
+The user, their email identity, and a verification token are created together. The raw token is never returned to the caller; it dispatches out-of-band through the configured `EzAuth.Sender`. Password confirmation URLs point at `/auth/password/callback?token=...`.
 
 ### Passwordless creates on demand
 
-`MagicLink.request/2` looks up the requested identity through `Accounts.find_or_create_email_identity/1`. If a verified identity exists, it reuses it. If not, the helper inserts a fresh passwordless user plus an unverified identity, and the strategy issues the verification. There is no separate flag: enabling an implemented passwordless strategy is the opt-in. Hosts that want sign-in only must keep those strategies disabled (or wrap the request route with their own access check).
+`MagicLink.request/2` and `EmailOtp.request/2` look up the requested identity through `Accounts.find_or_create_email_identity/1`. If a verified identity exists, they reuse it. If not, the helper inserts a fresh passwordless user plus an unverified identity, and the strategy issues the verification. There is no separate flag: enabling an implemented passwordless strategy is the opt-in. Hosts that want sign-in only must keep those strategies disabled (or wrap the request route with their own access check).
 
-`SmsOtp`, `EmailOtp`, and `Whatsapp` are currently registered metadata placeholders. Their default strategy actions fail closed until implemented.
+`SmsOtp` and `Whatsapp` are currently registered metadata placeholders. Their default strategy actions fail closed until implemented.
 
 ### Sign-in
 
