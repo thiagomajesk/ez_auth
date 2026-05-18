@@ -4,7 +4,6 @@ defmodule EzAuth.Accounts.Verification do
   import Ecto.Query
 
   alias __MODULE__
-  alias EzAuth.Accounts.Token
   alias EzAuth.Accounts.User
 
   @types [
@@ -28,8 +27,8 @@ defmodule EzAuth.Accounts.Verification do
     timestamps(type: :utc_datetime, updated_at: false)
   end
 
-  def build_verification(user, type, value) do
-    token = build_token(type)
+  def build_verification(user, type, value, token) do
+    hashed_token = Base.encode64(:crypto.hash(:sha256, token.raw_token))
 
     {token.encoded_token,
      %Verification{
@@ -37,7 +36,7 @@ defmodule EzAuth.Accounts.Verification do
        value: value,
        user_id: user.id,
        expires_at: token.expires_at,
-       token: Base.encode64(:crypto.hash(:sha256, token.raw_token))
+       token: hashed_token
      }}
   end
 
@@ -69,9 +68,6 @@ defmodule EzAuth.Accounts.Verification do
         {:error, :invalid_token}
     end
   end
-
-  defp build_token(:recovery), do: Token.build_verification_code()
-  defp build_token(_type), do: Token.build_verification_link()
 
   defp scope_by_value(query, nil), do: query
   defp scope_by_value(query, value), do: where(query, [v], v.value == ^value)

@@ -99,7 +99,7 @@ defmodule EzAuth.UI.TaskForgotPasswordTest do
       user = %User{id: 42}
       verification = %Verification{type: :recovery, user: user}
 
-      expect(Accounts, :verify_magic_code, fn "123456", :recovery, "user@example.com" ->
+      expect(Accounts, :verify_code, fn "123456", :recovery, "user@example.com" ->
         {:ok, verification}
       end)
 
@@ -114,7 +114,7 @@ defmodule EzAuth.UI.TaskForgotPasswordTest do
     end
 
     test "stays on the verify step when the code is invalid" do
-      expect(Accounts, :verify_magic_code, fn _code, :recovery, _value ->
+      expect(Accounts, :verify_code, fn _code, :recovery, _value ->
         {:error, :invalid_token}
       end)
 

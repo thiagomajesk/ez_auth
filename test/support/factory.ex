@@ -5,12 +5,20 @@ defmodule EzAuth.Test.Factory do
 
   alias EzAuth.Accounts.Identity
   alias EzAuth.Accounts.Session
+  alias EzAuth.Accounts.Token
   alias EzAuth.Accounts.User
   alias EzAuth.Accounts.Verification
   alias EzAuth.TestRepo
 
-  def insert_verification(user, type, value) do
-    {token, verification} = Verification.build_verification(user, type, value)
+  def insert_verification_code(user, type, value) do
+    token = Token.build_verification_token(format: :code, size: 6, validity: 15)
+    {token, verification} = Verification.build_verification(user, type, value, token)
+    {token, TestRepo.insert!(verification)}
+  end
+
+  def insert_verification_token(user, type, value) do
+    token = Token.build_verification_token(format: :random, size: 32, validity: 15)
+    {token, verification} = Verification.build_verification(user, type, value, token)
     {token, TestRepo.insert!(verification)}
   end
 

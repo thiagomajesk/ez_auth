@@ -149,7 +149,7 @@ defmodule EzAuth.UI.TaskForgotPassword do
   def handle_event("submit", %{"code" => parts}, socket) do
     code = Enum.join(Map.values(parts))
 
-    case Accounts.verify_magic_code(code, :recovery, socket.assigns.email) do
+    case Accounts.verify_code(code, :recovery, socket.assigns.email) do
       {:ok, verification} ->
         {:noreply,
          socket

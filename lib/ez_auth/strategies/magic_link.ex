@@ -18,14 +18,14 @@ defmodule EzAuth.Strategies.MagicLink do
     with {:ok, _user} <- Changeset.apply_action(changeset, :validate),
          {:ok, email} <- Changeset.fetch_change(changeset, :email),
          {:ok, {user, identity}} <- Accounts.find_or_create_email_identity(email) do
-      Accounts.issue_identity_verification(identity, :email)
+      Accounts.request_email_verification_link(identity)
       {:ok, conn, user}
     end
   end
 
   @impl true
   def callback(conn, %{"token" => token}) do
-    case Accounts.verify_magic_link(token, :email) do
+    case Accounts.verify_link(token, :email) do
       {:error, reason} ->
         {:error, reason}
 

@@ -7,10 +7,10 @@ defmodule EzAuth.Accounts do
 
   alias EzAuth.Accounts.Identity
   alias EzAuth.Accounts.Session
+  alias EzAuth.Accounts.Token
   alias EzAuth.Accounts.User
   alias EzAuth.Accounts.Verification
   alias EzAuth.Config
-  alias EzAuth.Scopes.SenderScope
   alias EzAuth.Sender
 
   @doc """
@@ -120,10 +120,35 @@ defmodule EzAuth.Accounts do
   end
 
   @doc """
-  Issues an `:email` verification for the given identity.
+  Issues an email verification link for the given identity.
   """
-  def request_email_verification(%Identity{} = identity) do
-    issue_identity_verification(identity, :email)
+  def request_email_verification_link(%Identity{} = identity) do
+    token =
+      Token.build_verification_token(
+        format: :random,
+        size: Config.token_rand_size(),
+        validity: Config.magic_link_validity_in_minutes()
+      )
+
+    insert_verification(identity.user, :email, identity.value, token)
+
+    Sender.maybe_invoke(Config.sender(), :email, {identity.user, token})
+  end
+
+  @doc """
+  Issues an email verification code for the given identity.
+  """
+  def request_email_verification_code(%Identity{} = identity) do
+    token =
+      Token.build_verification_token(
+        format: :code,
+        size: Config.recovery_code_length(),
+        validity: Config.recovery_code_validity_in_minutes()
+      )
+
+    insert_verification(identity.user, :email, identity.value, token)
+
+    Sender.maybe_invoke(Config.sender(), :email, {identity.user, token})
   end
 
   @doc """
@@ -137,22 +162,17 @@ defmodule EzAuth.Accounts do
         :ok
 
       user ->
-        {code, _verification} = create_verification(user, :recovery, email)
-        Sender.maybe_invoke(Config.sender(), :recovery, SenderScope.new(user, code))
+        token =
+          Token.build_verification_token(
+            format: :code,
+            size: Config.recovery_code_length(),
+            validity: Config.recovery_code_validity_in_minutes()
+          )
+
+        insert_verification(user, :recovery, email, token)
+
+        Sender.maybe_invoke(Config.sender(), :recovery, {user, token})
     end
-  end
-
-  @doc """
-  Issues an identity verification token and dispatches it through the configured sender.
-  """
-  def issue_identity_verification(%Identity{} = identity, type) do
-    {token, _verification} = create_verification(identity.user, type, identity.value)
-
-    Sender.maybe_invoke(
-      Config.sender(),
-      identity.type,
-      SenderScope.new(identity.user, token)
-    )
   end
 
   @doc """
@@ -183,25 +203,25 @@ defmodule EzAuth.Accounts do
   end
 
   @doc """
-  Verifies a magic-link token and consumes it.
+  Verifies a user link token and consumes it.
 
   The token is the long random secret embedded in a URL. Used by `:email`
   identity verification (post-signup confirm and magic-link sign-in) and
   similar link-style flows.
   """
-  def verify_magic_link(token, type) do
+  def verify_link(token, type) do
     with {:ok, query} <- Verification.fetch_by_token_query(token, type),
          do: consume_verification(Config.repo!().one(query))
   end
 
   @doc """
-  Verifies a short magic-code and consumes it.
+  Verifies a short user code and consumes it.
 
   The code is the human-typeable secret sent out-of-band (recovery email,
   SMS OTP). Because the code's entropy is low, the lookup is value-scoped
-  to the identity it was issued for.
+  to the identity it was issued for when the caller passes a value.
   """
-  def verify_magic_code(code, type, value) do
+  def verify_code(code, type, value) do
     with {:ok, query} <- Verification.fetch_by_token_query(code, type, value),
          do: consume_verification(Config.repo!().one(query))
   end
@@ -212,9 +232,11 @@ defmodule EzAuth.Accounts do
     |> Config.repo!().insert()
   end
 
-  defp create_verification(user, type, value) do
-    {token, verification} = Verification.build_verification(user, type, value)
+  defp insert_verification(user, type, value, token) do
+    insert_verification(Verification.build_verification(user, type, value, token))
+  end
 
+  defp insert_verification({token, verification}) do
     {token,
      Config.repo!().insert!(
        verification,

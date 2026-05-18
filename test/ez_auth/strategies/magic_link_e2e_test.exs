@@ -30,7 +30,7 @@ defmodule EzAuth.Strategies.MagicLinkE2ETest do
       %{user: %{id: user_id} = user} =
         insert(:identity, value: "user@example.com", verified_at: nil)
 
-      {token, _verification} = insert_verification(user, :email, "user@example.com")
+      {token, _verification} = insert_verification_token(user, :email, "user@example.com")
 
       assert {:ok, conn, %{id: ^user_id}} =
                MagicLink.callback(build_session_conn(), %{"token" => token})

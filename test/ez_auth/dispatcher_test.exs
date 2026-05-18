@@ -106,7 +106,7 @@ defmodule EzAuth.DispatcherTest do
         {:ok, {user, identity}}
       end)
 
-      expect(Accounts, :request_email_verification, fn ^identity -> :ok end)
+      expect(Accounts, :request_email_verification_link, fn ^identity -> :ok end)
 
       expect(Handler, :handle_success, fn ^conn, {:default, :sign_up}, ^user ->
         assign(conn, :handled, :success)
@@ -141,7 +141,7 @@ defmodule EzAuth.DispatcherTest do
         {:ok, {user, identity}}
       end)
 
-      expect(Accounts, :request_email_verification, fn ^identity -> :ok end)
+      expect(Accounts, :request_email_verification_link, fn ^identity -> :ok end)
 
       conn = Dispatcher.sign_up(conn, %{"user" => %{"email" => "user@example.com"}})
 

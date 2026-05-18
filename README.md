@@ -146,13 +146,9 @@ For example, the `:email` event is emitted when EzAuth creates an email verifica
 defmodule MyApp.AuthSender do
   @behaviour EzAuth.Sender
 
-  alias EzAuth.Scopes.SenderScope
-
   @impl true
-  def deliver(:email, scope) do
-    confirmation_url = SenderScope.password_confirmation(scope)
-
-    # Deliver confirmation_url to scope.user
+  def deliver(:email, {_user, token}) do
+    # Build this confirmation URL and deliver it to the user.
   end
 end
 ```

@@ -32,7 +32,7 @@ defmodule EzAuth.Dispatcher do
 
     case EzAuth.Accounts.create_user_with_password(user_params) do
       {:ok, {user, identity}} ->
-        EzAuth.Accounts.request_email_verification(identity)
+        EzAuth.Accounts.request_email_verification_link(identity)
         maybe_handle_success(conn, handler, {:default, :sign_up}, user)
 
       {:error, reason} ->

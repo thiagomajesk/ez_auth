@@ -62,7 +62,7 @@ defmodule EzAuth.Strategies.PasswordTest do
       conn = build_session_conn()
       user = %{id: 1}
 
-      expect(Accounts, :verify_magic_link, fn "token", :email ->
+      expect(Accounts, :verify_link, fn "token", :email ->
         {:ok, %{user: user}}
       end)
 
@@ -72,7 +72,7 @@ defmodule EzAuth.Strategies.PasswordTest do
     test "returns the verification failure reason" do
       stub_config()
 
-      expect(Accounts, :verify_magic_link, fn "token", :email ->
+      expect(Accounts, :verify_link, fn "token", :email ->
         {:error, :invalid_token}
       end)
 

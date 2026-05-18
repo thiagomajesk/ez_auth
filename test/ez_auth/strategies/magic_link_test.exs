@@ -19,7 +19,7 @@ defmodule EzAuth.Strategies.MagicLinkTest do
         {:ok, {user, identity}}
       end)
 
-      expect(Accounts, :issue_identity_verification, fn ^identity, :email -> :ok end)
+      expect(Accounts, :request_email_verification_link, fn ^identity -> :ok end)
 
       assert {:ok, ^conn, %{id: 1}} =
                MagicLink.request(conn, %{"user" => %{"email" => "user@example.com"}})
@@ -30,7 +30,7 @@ defmodule EzAuth.Strategies.MagicLinkTest do
       conn = build_session_conn()
       user = %{id: 1}
 
-      expect(Accounts, :verify_magic_link, fn "token", :email ->
+      expect(Accounts, :verify_link, fn "token", :email ->
         {:ok, %{user: user}}
       end)
 
@@ -46,7 +46,7 @@ defmodule EzAuth.Strategies.MagicLinkTest do
       stub_config()
       conn = build_session_conn()
 
-      expect(Accounts, :verify_magic_link, fn "token", :email ->
+      expect(Accounts, :verify_link, fn "token", :email ->
         {:error, :invalid_token}
       end)
 

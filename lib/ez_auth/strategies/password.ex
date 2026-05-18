@@ -12,7 +12,7 @@ defmodule EzAuth.Strategies.Password do
 
   @impl true
   def callback(conn, %{"token" => token}) do
-    with {:ok, verification} <- EzAuth.Accounts.verify_magic_link(token, :email),
+    with {:ok, verification} <- EzAuth.Accounts.verify_link(token, :email),
          do: {:ok, conn, verification.user}
   end
 
