@@ -48,6 +48,9 @@ config :ez_auth,
   strategies: [EzAuth.Strategies.Password]
 ```
 
+> For provider-specific setup and strategy notes, see
+> [`docs/STRATEGIES.md`](docs/STRATEGIES.md).
+
 ### Step 3 - Update your router
 
 Add `use EzAuth` to your Router so the helpers are imported:
