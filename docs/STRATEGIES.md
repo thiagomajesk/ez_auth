@@ -141,9 +141,41 @@ config :ez_auth,
 
 ### Microsoft
 
-- **Site:** N/A
-- **Reference:** N/A
+Use Microsoft when users should sign in with the Microsoft identity platform.
+Microsoft verifies the user during the OAuth callback, then EzAuth creates or
+finds a verified `:microsoft` identity for the provider user ID.
+
+- **Site:** [Microsoft Entra admin center](https://entra.microsoft.com)
+- **Reference:** [OAuth 2.0 authorization code flow](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow)
 - **Module:** `EzAuth.Strategies.Microsoft`
+
+#### Setup
+
+1. Register an application in Microsoft Entra.
+2. Add a web platform redirect URI for your EzAuth Microsoft callback route:
+   `https://your-host.example/auth/microsoft/callback`.
+3. Create a client secret for the app registration.
+4. Copy the Application (client) ID and client secret value.
+5. Confirm the app can request the `openid`, `email`, `profile`, and
+   `User.Read` scopes.
+
+#### Configuration
+
+```elixir
+config :ez_auth,
+  microsoft_client_id: System.fetch_env!("MICROSOFT_CLIENT_ID"),
+  microsoft_client_secret: System.fetch_env!("MICROSOFT_CLIENT_SECRET"),
+  strategies: [EzAuth.Strategies.Password, EzAuth.Strategies.Microsoft]
+```
+
+#### Checklist
+
+- The Microsoft app registration redirect URI exactly matches
+  `/auth/microsoft/callback` on your host.
+- `MICROSOFT_CLIENT_ID` and `MICROSOFT_CLIENT_SECRET` are available in the
+  runtime environment.
+- `EzAuth.Strategies.Microsoft` is included in `:strategies`.
+- `auth_routes()` is mounted in your router.
 
 ### Apple
 

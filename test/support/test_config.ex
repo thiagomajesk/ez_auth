@@ -14,6 +14,8 @@ defmodule EzAuth.TestConfig do
     google_client_id!
     google_client_secret!
     magic_link_validity_in_minutes
+    microsoft_client_id!
+    microsoft_client_secret!
     name_format
     name_max_length
     password_max_length
@@ -42,6 +44,8 @@ defmodule EzAuth.TestConfig do
     github_client_secret: "github-client-secret",
     google_client_id: "google-client-id",
     google_client_secret: "google-client-secret",
+    microsoft_client_id: "microsoft-client-id",
+    microsoft_client_secret: "microsoft-client-secret",
     strategies: [],
     sign_in_path: "/sign-in",
     sign_up_path: "/sign-up",

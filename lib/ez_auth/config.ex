@@ -35,6 +35,10 @@ defmodule EzAuth.Config do
 
   def magic_link_validity_in_minutes, do: env(:magic_link_validity_in_minutes, :integer, 15)
 
+  def microsoft_client_id!, do: env!(:microsoft_client_id, :string)
+
+  def microsoft_client_secret!, do: env!(:microsoft_client_secret, :string)
+
   def name_format,
     do:
       env(
