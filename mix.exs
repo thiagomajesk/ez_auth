@@ -72,6 +72,7 @@ defmodule EzAuth.MixProject do
       {:phoenix_live_view, "~> 1.1"},
       {:gettext, "~> 1.0"},
       {:jason, "~> 1.0"},
+      {:req, "~> 0.5"},
       {:phoenix_storybook, "~> 0.8", only: :dev},
       {:phoenix_playground, "~> 0.1", only: :dev},
       {:postgrex, "~> 0.19", only: :test},
