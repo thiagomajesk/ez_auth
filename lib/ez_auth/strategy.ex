@@ -19,7 +19,7 @@ defmodule EzAuth.Strategy do
 
   def supported_strategies, do: @supported_strategies
 
-  @type result :: {:ok, Plug.Conn.t(), user :: struct()} | {:error, reason :: term()}
+  @type result :: {:ok, Plug.Conn.t(), user :: struct() | nil} | {:error, reason :: term()}
 
   @type meta :: %{
           id: atom(),
