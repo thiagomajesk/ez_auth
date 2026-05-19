@@ -82,6 +82,10 @@ defmodule EzAuth.UI.SignUpTest do
 
       assert html =~ "Continue with link"
       assert html =~ "Continue with phone"
+      assert html =~ ~s(action="/sign-in")
+      assert html =~ ~s(method="get")
+      assert html =~ ~s(name="strategy" value="magic-link")
+      assert html =~ ~s(name="strategy" value="sms-otp")
     end
 
     test "shows social brand buttons when social strategies are configured" do
@@ -90,6 +94,7 @@ defmodule EzAuth.UI.SignUpTest do
       html = render_component(SignUp, id: "sign-up")
 
       assert html =~ "Continue with Google"
+      assert html =~ ~s(action="/auth/google/request")
     end
 
     test "truncates the sign-in options list to 3 entries by default" do

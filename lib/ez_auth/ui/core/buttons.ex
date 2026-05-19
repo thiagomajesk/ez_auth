@@ -12,6 +12,8 @@ defmodule EzAuth.UI.Core.Buttons do
 
   import EzAuth.Translations, only: [translate: 1, translate: 2]
 
+  alias EzAuth.Config
+  alias EzAuth.Strategy
   alias EzAuth.UI.Core
 
   @doc """
@@ -97,9 +99,9 @@ defmodule EzAuth.UI.Core.Buttons do
 
   Derives the icon and label from the strategy's callbacks: identity drives
   the icon (with `:magic_link` overriding to `:link`); name fills the
-  "Continue with {name}" label. Submits with `name="_strategy"` and the
-  strategy id as the value, so the parent form handler can branch on
-  `params["_strategy"]`.
+  "Continue with {name}" label. Social strategies submit a POST request.
+  Passwordless strategies submit a GET request to the sign-in page with the
+  selected strategy.
 
   ## Options
 
@@ -119,25 +121,31 @@ defmodule EzAuth.UI.Core.Buttons do
 
   def strategy(assigns) do
     meta = assigns.strategy.__meta__()
+    {method, action} = strategy_metadata(assigns.strategy)
 
     assigns =
       assigns
-      |> assign(:icon, icon_for(meta))
       |> assign(:id, meta.id)
-      |> assign(:label, translate("Continue with %{name}", name: meta.name))
+      |> assign(:action, action)
+      |> assign(:method, method)
       |> assign(:title, meta.name)
+      |> assign(:icon, icon_for(meta))
+      |> assign(:slug, Strategy.slug(assigns.strategy))
+      |> assign(:label, translate("Continue with %{name}", name: meta.name))
 
     ~H"""
-    <.action
-      icon={@icon}
-      label={@label}
-      type={:submit}
-      name="_strategy"
-      value={@id}
-      title={@title}
-      data-strategy={@id}
-      {@rest}
-    />
+    <.form for={%{}} action={@action} method={@method}>
+      <.action
+        icon={@icon}
+        label={@label}
+        type={:submit}
+        name="strategy"
+        value={@slug}
+        title={@title}
+        data-strategy={@id}
+        {@rest}
+      />
+    </.form>
     """
   end
 
@@ -146,6 +154,19 @@ defmodule EzAuth.UI.Core.Buttons do
   defp icon_for(%{kind: :social} = meta), do: meta.identity
   defp icon_for(%{identity: :email}), do: :envelope
   defp icon_for(%{identity: :phone}), do: :phone
+
+  defp strategy_metadata(strategy) do
+    case strategy.__meta__(:kind) do
+      :credential ->
+        {"get", Config.sign_in_path()}
+
+      :passwordless ->
+        {"get", Config.sign_in_path()}
+
+      :social ->
+        {"post", "/auth/#{Strategy.slug(strategy)}/request"}
+    end
+  end
 
   defp submit_label(nil), do: translate("Continue")
   defp submit_label(label), do: translate(label)

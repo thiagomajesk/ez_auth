@@ -23,6 +23,7 @@ defmodule EzAuth.UI.SignInTest do
       html = render_component(SignIn, id: "sign-in")
 
       assert html =~ "Continue with Google"
+      assert html =~ ~s(action="/auth/google/request")
     end
 
     test "poly input is restricted to email when only email-anchored strategies are enabled" do
