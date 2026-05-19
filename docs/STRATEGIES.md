@@ -179,6 +179,39 @@ config :ez_auth,
 
 ### Apple
 
-- **Site:** N/A
-- **Reference:** N/A
+Use Apple when users should sign in with Sign in with Apple. Apple verifies the
+user during the OAuth callback, then EzAuth verifies the returned ID token and
+creates or finds a verified `:apple` identity for the provider subject.
+
+- **Site:** [Apple Developer](https://developer.apple.com/account)
+- **Reference:** [Sign in with Apple REST API](https://developer.apple.com/documentation/signinwithapplerestapi)
 - **Module:** `EzAuth.Strategies.Apple`
+
+#### Setup
+
+1. Enable Sign in with Apple for your app in Apple Developer.
+2. Create a Services ID for your web sign-in flow.
+3. Add your EzAuth Apple callback route as the return URL:
+   `https://your-host.example/auth/apple/callback`.
+4. Create a Sign in with Apple private key.
+5. Copy the Services ID, Team ID, Key ID, and private key.
+
+#### Configuration
+
+```elixir
+config :ez_auth,
+  apple_client_id: System.fetch_env!("APPLE_CLIENT_ID"),
+  apple_team_id: System.fetch_env!("APPLE_TEAM_ID"),
+  apple_key_id: System.fetch_env!("APPLE_KEY_ID"),
+  apple_private_key: System.fetch_env!("APPLE_PRIVATE_KEY"),
+  strategies: [EzAuth.Strategies.Password, EzAuth.Strategies.Apple]
+```
+
+#### Checklist
+
+- The Apple Services ID return URL exactly matches `/auth/apple/callback` on
+  your host.
+- `APPLE_CLIENT_ID`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, and `APPLE_PRIVATE_KEY`
+  are available in the runtime environment.
+- `EzAuth.Strategies.Apple` is included in `:strategies`.
+- `auth_routes()` is mounted in your router.

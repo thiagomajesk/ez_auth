@@ -11,6 +11,14 @@ defmodule EzAuth.Config do
 
   def after_sign_in_path, do: env(:after_sign_in_path, :string, "/")
 
+  def apple_client_id!, do: env!(:apple_client_id, :string)
+
+  def apple_key_id!, do: env!(:apple_key_id, :string)
+
+  def apple_private_key!, do: env!(:apple_private_key, :string)
+
+  def apple_team_id!, do: env!(:apple_team_id, :string)
+
   def email_format,
     do:
       env(

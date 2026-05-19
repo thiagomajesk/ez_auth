@@ -5,6 +5,10 @@ defmodule EzAuth.TestConfig do
 
   @stubs ~w(
     after_sign_in_path
+    apple_client_id!
+    apple_key_id!
+    apple_private_key!
+    apple_team_id!
     email_format
     email_max_length
     endpoint!
@@ -40,6 +44,16 @@ defmodule EzAuth.TestConfig do
     sender: EzAuth.Test.Sender,
     endpoint: EzAuth.Test.Endpoint,
     gettext_backend: nil,
+    apple_client_id: "apple-client-id",
+    apple_team_id: "apple-team-id",
+    apple_key_id: "apple-key-id",
+    apple_private_key: """
+    -----BEGIN EC PRIVATE KEY-----
+    MHcCAQEEIIjWYSt8tYTaGE48DZhO0LwRsRfFb9FkeAqS7xj8KiYCoAoGCCqGSM49
+    AwEHoUQDQgAEyb2N8wDvi0ZNGfIjeaQNeSrrb1bW5cG5AV6EN0jATB8MfQa3rHaL
+    K81JTYqZ3sRhgTJyBzXQWeJPVQDK8oj2AQ==
+    -----END EC PRIVATE KEY-----
+    """,
     github_client_id: "github-client-id",
     github_client_secret: "github-client-secret",
     google_client_id: "google-client-id",
