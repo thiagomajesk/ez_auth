@@ -104,9 +104,40 @@ EzAuth uses that endpoint URL to build the OAuth callback URL it sends to GitHub
 
 ### Google
 
-- **Site:** N/A
-- **Reference:** N/A
+Use Google when users should sign in with a Google OAuth client. Google verifies
+the user during the OAuth callback, then EzAuth creates or finds a verified
+`:google` identity for the provider subject.
+
+- **Site:** [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+- **Reference:** [OAuth 2.0 for Web Server Applications](https://developers.google.com/identity/protocols/oauth2/web-server)
 - **Module:** `EzAuth.Strategies.Google`
+
+#### Setup
+
+1. Create or select a project in Google Cloud Console.
+2. Configure the OAuth consent screen for the app.
+3. Create an OAuth client ID for a web application.
+4. Add your EzAuth Google callback route as an authorized redirect URI:
+   `https://your-host.example/auth/google/callback`.
+5. Copy the Client ID and Client Secret.
+
+#### Configuration
+
+```elixir
+config :ez_auth,
+  google_client_id: System.fetch_env!("GOOGLE_CLIENT_ID"),
+  google_client_secret: System.fetch_env!("GOOGLE_CLIENT_SECRET"),
+  strategies: [EzAuth.Strategies.Password, EzAuth.Strategies.Google]
+```
+
+#### Checklist
+
+- The Google OAuth client redirect URI exactly matches
+  `/auth/google/callback` on your host.
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are available in the runtime
+  environment.
+- `EzAuth.Strategies.Google` is included in `:strategies`.
+- `auth_routes()` is mounted in your router.
 
 ### Microsoft
 
