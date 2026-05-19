@@ -32,6 +32,8 @@ defmodule EzAuth.ConfigTest do
 
     test "required helpers raise when their key is missing" do
       for {fun, key} <- [
+            {&Config.github_client_id!/0, :github_client_id},
+            {&Config.github_client_secret!/0, :github_client_secret},
             {&Config.repo!/0, :repo},
             {&Config.endpoint!/0, :endpoint}
           ] do
