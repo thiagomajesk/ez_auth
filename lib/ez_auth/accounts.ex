@@ -66,6 +66,14 @@ defmodule EzAuth.Accounts do
   end
 
   @doc """
+  Returns the user and verified social identity, creating them when none exists.
+  """
+  def find_or_create_social_identity(type, value) do
+    with {:error, :not_found} <- get_verified_identity(type, value),
+         do: create_user_with_social_identity(type, value)
+  end
+
+  @doc """
   Generates a session token for the user.
   """
   def generate_user_session_token(%User{} = user) do
@@ -245,6 +253,21 @@ defmodule EzAuth.Accounts do
   defp create_identity(%User{} = user, type, value) do
     user
     |> Identity.changeset(type, value)
+    |> Config.repo!().insert()
+  end
+
+  defp create_user_with_social_identity(type, value) do
+    Config.repo!().transact(fn ->
+      with {:ok, user} <- Config.repo!().insert(%User{}),
+           {:ok, identity} <- create_verified_identity(user, type, value),
+           do: {:ok, {user, %{identity | user: user}}}
+    end)
+  end
+
+  defp create_verified_identity(%User{} = user, type, value) do
+    user
+    |> Identity.changeset(type, value)
+    |> Ecto.Changeset.change(verified_at: DateTime.utc_now(:second))
     |> Config.repo!().insert()
   end
 

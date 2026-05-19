@@ -101,6 +101,39 @@ defmodule EzAuth.AccountsTest do
     end
   end
 
+  describe "find_or_create_social_identity/2" do
+    test "returns the existing user and identity when verified" do
+      base_config()
+      user = insert(:user)
+
+      existing =
+        insert(:identity,
+          user: user,
+          type: :github,
+          value: "12345",
+          verified_at: DateTime.utc_now(:second)
+        )
+
+      assert {:ok, {%User{id: user_id}, %Identity{id: identity_id}}} =
+               Accounts.find_or_create_social_identity(:github, "12345")
+
+      assert user_id == user.id
+      assert identity_id == existing.id
+    end
+
+    test "creates a passwordless user with a verified provider identity when missing" do
+      base_config()
+
+      assert {:ok, {%User{id: user_id}, %Identity{type: :github, value: "12345"}}} =
+               Accounts.find_or_create_social_identity(:github, "12345")
+
+      assert %{user_id: ^user_id, verified_at: verified_at} =
+               QueryHelpers.fetch_identity!(TestRepo, :github, "12345")
+
+      assert verified_at
+    end
+  end
+
   describe "generate_user_session_token/1" do
     test "creates a session token that can be used to fetch the user" do
       base_config()
