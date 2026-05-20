@@ -39,7 +39,7 @@ defmodule EzAuth.Strategies.EmailOtpE2ETest do
                })
 
       assert get_session(conn, :user_token)
-      assert QueryHelpers.fetch_identity!(TestRepo, :email, "user@example.com").verified_at
+      assert QueryHelpers.fetch_identity!(TestRepo, "email", "user@example.com").verified_at
     end
 
     test "returns invalid_token for malformed codes" do

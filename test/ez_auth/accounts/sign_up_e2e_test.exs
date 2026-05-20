@@ -23,7 +23,7 @@ defmodule EzAuth.Accounts.SignUpE2ETest do
       assert %Plug.Conn{} = Dispatcher.sign_up(build_dispatcher_conn(), %{"user" => params})
 
       assert %{user_id: user_id, verified_at: nil} =
-               QueryHelpers.fetch_identity!(TestRepo, :email, "new@example.com")
+               QueryHelpers.fetch_identity!(TestRepo, "email", "new@example.com")
 
       assert %User{id: ^user_id} = TestRepo.get!(User, user_id)
 

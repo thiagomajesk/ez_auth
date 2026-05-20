@@ -77,7 +77,7 @@ defmodule EzAuth.UI.TaskForgotPassword do
         }
       >
         <Buttons.action
-          icon={:arrow_right}
+          icon="arrow_right"
           label={translate("I've received a code")}
           variant="submit"
           phx-target={@myself}

@@ -13,7 +13,7 @@ defmodule EzAuth.HandlerTest do
 
       assert conn ==
                Handler.maybe_invoke(conn, nil, :handle_success, [
-                 {:password, :request},
+                 {EzAuth.Strategies.Password, :request},
                  %{id: 1}
                ])
     end
@@ -22,13 +22,13 @@ defmodule EzAuth.HandlerTest do
       conn = %{id: 1}
       user = %{id: 10}
 
-      expect(TestHandler, :handle_success, fn ^conn, {:password, :request}, ^user ->
+      expect(TestHandler, :handle_success, fn ^conn, {EzAuth.Strategies.Password, :request}, ^user ->
         Map.put(conn, :handled, true)
       end)
 
       assert %{handled: true} =
                Handler.maybe_invoke(conn, TestHandler, :handle_success, [
-                 {:password, :request},
+                 {EzAuth.Strategies.Password, :request},
                  user
                ])
     end
@@ -38,7 +38,7 @@ defmodule EzAuth.HandlerTest do
 
       assert conn ==
                Handler.maybe_invoke(conn, NoopHandler, :handle_success, [
-                 {:password, :request},
+                 {EzAuth.Strategies.Password, :request},
                  %{id: 1}
                ])
     end

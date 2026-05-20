@@ -60,7 +60,7 @@ defmodule EzAuth.Strategies.MicrosoftTest do
         {:ok, %{"id" => 12_345}}
       end)
 
-      expect(Accounts, :find_or_create_social_identity, fn :microsoft, "12345" ->
+      expect(Accounts, :find_or_create_social_identity, fn "microsoft", "12345" ->
         {:ok, {user, %{}}}
       end)
 

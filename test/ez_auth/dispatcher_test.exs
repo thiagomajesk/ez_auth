@@ -20,7 +20,7 @@ defmodule EzAuth.DispatcherTest do
         {:ok, conn, user}
       end)
 
-      expect(Handler, :handle_success, fn ^conn, {:test, :request}, ^user ->
+      expect(Handler, :handle_success, fn ^conn, {EzAuth.Test.Strategy, :request}, ^user ->
         assign(conn, :handled, :success)
       end)
 
@@ -35,7 +35,7 @@ defmodule EzAuth.DispatcherTest do
         {:error, :invalid_credentials}
       end)
 
-      expect(Handler, :handle_failure, fn ^conn, {:test, :request}, :invalid_credentials ->
+      expect(Handler, :handle_failure, fn ^conn, {EzAuth.Test.Strategy, :request}, :invalid_credentials ->
         assign(conn, :handled, :failure)
       end)
 
@@ -64,7 +64,7 @@ defmodule EzAuth.DispatcherTest do
         {:ok, conn, user}
       end)
 
-      expect(Handler, :handle_success, fn ^conn, {:test, :callback}, ^user ->
+      expect(Handler, :handle_success, fn ^conn, {EzAuth.Test.Strategy, :callback}, ^user ->
         assign(conn, :handled, :success)
       end)
 
@@ -100,7 +100,12 @@ defmodule EzAuth.DispatcherTest do
     test "reports successful sign ups to the handler" do
       conn = put_ez_auth(build_conn(), handler: Handler)
       user = %{id: 1}
-      identity = %EzAuth.Accounts.Identity{type: :email, value: "user@example.com", user: user}
+
+      identity = %EzAuth.Accounts.Identity{
+        provider: "email",
+        value: "user@example.com",
+        user: user
+      }
 
       expect(Accounts, :create_user_with_password, fn %{"email" => "user@example.com"} ->
         {:ok, {user, identity}}
@@ -135,7 +140,12 @@ defmodule EzAuth.DispatcherTest do
     test "redirects successful sign ups when no handler is configured" do
       conn = put_ez_auth(build_conn(), handler: nil)
       user = %{id: 1}
-      identity = %EzAuth.Accounts.Identity{type: :email, value: "user@example.com", user: user}
+
+      identity = %EzAuth.Accounts.Identity{
+        provider: "email",
+        value: "user@example.com",
+        user: user
+      }
 
       expect(Accounts, :create_user_with_password, fn %{"email" => "user@example.com"} ->
         {:ok, {user, identity}}

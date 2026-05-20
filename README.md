@@ -183,14 +183,14 @@ defmodule MyAppWeb.AuthHandler do
   end
 
   @impl true
-  def handle_failure(conn, {:password, :request}, _reason) do
+  def handle_failure(conn, {EzAuth.Strategies.Password, :request}, _reason) do
     conn
     |> put_flash(:error, "Invalid email or password.")
     |> redirect(to: EzAuth.Config.sign_in_path())
   end
 
   @impl true
-  def handle_success(conn, {:password, :callback}, _user) do
+  def handle_success(conn, {EzAuth.Strategies.Password, :callback}, _user) do
     conn
     |> put_flash(:info, "Your email has been confirmed. You can sign in now.")
     |> redirect(to: EzAuth.Config.sign_in_path())

@@ -2,7 +2,7 @@ defmodule EzAuth.Strategies.Microsoft do
   @moduledoc false
 
   use EzAuth.OAuth,
-    id: :microsoft,
+    provider: "microsoft",
     name: "Microsoft",
     user_url: "https://graph.microsoft.com/v1.0/me",
     authorize_url: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",

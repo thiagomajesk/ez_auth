@@ -2,7 +2,7 @@ defmodule EzAuth.Strategies.Apple do
   @moduledoc false
 
   use EzAuth.OAuth,
-    id: :apple,
+    provider: "apple",
     name: "Apple",
     authorize_url: "https://appleid.apple.com/auth/authorize",
     token_url: "https://appleid.apple.com/auth/token",

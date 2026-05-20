@@ -22,7 +22,7 @@ defmodule EzAuth.Accounts do
     Config.repo!().transact(fn ->
       with {:ok, user} <- Config.repo!().insert(changeset),
            {:ok, email} <- Ecto.Changeset.fetch_change(changeset, :email),
-           {:ok, identity} <- create_identity(user, :email, email),
+           {:ok, identity} <- create_identity(user, "email", email),
            do: {:ok, {user, %{identity | user: user}}}
     end)
   end
@@ -33,7 +33,7 @@ defmodule EzAuth.Accounts do
   def create_user_with_email(email) do
     Config.repo!().transact(fn ->
       with {:ok, user} <- Config.repo!().insert(%User{}),
-           {:ok, identity} <- create_identity(user, :email, email),
+           {:ok, identity} <- create_identity(user, "email", email),
            do: {:ok, {user, %{identity | user: user}}}
     end)
   end
@@ -44,7 +44,7 @@ defmodule EzAuth.Accounts do
   def create_user_with_phone(phone) do
     Config.repo!().transact(fn ->
       with {:ok, user} <- Config.repo!().insert(%User{}),
-           {:ok, identity} <- create_identity(user, :phone, phone),
+           {:ok, identity} <- create_identity(user, "phone", phone),
            do: {:ok, {user, %{identity | user: user}}}
     end)
   end
@@ -53,7 +53,7 @@ defmodule EzAuth.Accounts do
   Returns the user and verified email identity, creating a passwordless user when none exists.
   """
   def find_or_create_email_identity(value) do
-    with {:error, :not_found} <- get_verified_identity(:email, value),
+    with {:error, :not_found} <- get_verified_identity("email", value),
          do: create_user_with_email(value)
   end
 
@@ -61,16 +61,16 @@ defmodule EzAuth.Accounts do
   Returns the user and verified phone identity, creating a passwordless user when none exists.
   """
   def find_or_create_phone_identity(value) do
-    with {:error, :not_found} <- get_verified_identity(:phone, value),
+    with {:error, :not_found} <- get_verified_identity("phone", value),
          do: create_user_with_phone(value)
   end
 
   @doc """
   Returns the user and verified social identity, creating them when none exists.
   """
-  def find_or_create_social_identity(type, value) do
-    with {:error, :not_found} <- get_verified_identity(type, value),
-         do: create_user_with_social_identity(type, value)
+  def find_or_create_social_identity(provider, value) do
+    with {:error, :not_found} <- get_verified_identity(provider, value),
+         do: create_user_with_social_identity(provider, value)
   end
 
   @doc """
@@ -83,7 +83,7 @@ defmodule EzAuth.Accounts do
   end
 
   def get_user_by_email(email) do
-    Config.repo!().one(User.by_identity_query(:email, email))
+    Config.repo!().one(User.by_identity_query("email", email))
   end
 
   def get_user_by_username(username) do
@@ -102,12 +102,12 @@ defmodule EzAuth.Accounts do
   end
 
   @doc """
-  Fetches a verified identity by type and value, returning the user it belongs to alongside.
+  Fetches a verified identity by provider and value, returning the user it belongs to alongside.
   """
-  def get_verified_identity(type, value) do
+  def get_verified_identity(provider, value) do
     query =
       from(i in Identity,
-        where: i.type == ^type,
+        where: i.provider == ^provider,
         where: i.value == ^value,
         where: not is_nil(i.verified_at),
         preload: :user
@@ -120,7 +120,7 @@ defmodule EzAuth.Accounts do
   end
 
   def email_taken?(email) do
-    Config.repo!().exists?(Identity.verified_by_type_and_value_query(:email, email))
+    Config.repo!().exists?(Identity.verified_by_provider_and_value_query("email", email))
   end
 
   def username_taken?(username) do
@@ -250,23 +250,23 @@ defmodule EzAuth.Accounts do
          do: consume_verification(Config.repo!().one(query))
   end
 
-  defp create_identity(%User{} = user, type, value) do
+  defp create_identity(%User{} = user, provider, value) do
     user
-    |> Identity.changeset(type, value)
+    |> Identity.changeset(provider, value)
     |> Config.repo!().insert()
   end
 
-  defp create_user_with_social_identity(type, value) do
+  defp create_user_with_social_identity(provider, value) do
     Config.repo!().transact(fn ->
       with {:ok, user} <- Config.repo!().insert(%User{}),
-           {:ok, identity} <- create_verified_identity(user, type, value),
+           {:ok, identity} <- create_verified_identity(user, provider, value),
            do: {:ok, {user, %{identity | user: user}}}
     end)
   end
 
-  defp create_verified_identity(%User{} = user, type, value) do
+  defp create_verified_identity(%User{} = user, provider, value) do
     user
-    |> Identity.changeset(type, value)
+    |> Identity.changeset(provider, value)
     |> Ecto.Changeset.change(verified_at: DateTime.utc_now(:second))
     |> Config.repo!().insert()
   end
@@ -292,7 +292,9 @@ defmodule EzAuth.Accounts do
 
   defp consume_verification(%Verification{} = verification) do
     %{user: user, type: type, value: value} = verification
-    query = Identity.update_verified_at_query(user, type, value)
+
+    # Email and phone verifications prove ownership of the matching identity provider.
+    query = Identity.update_verified_at_query(user, to_string(type), value)
 
     multi =
       Ecto.Multi.new()

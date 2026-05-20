@@ -7,20 +7,9 @@ defmodule EzAuth.Accounts.Identity do
   alias __MODULE__
   alias EzAuth.Accounts.User
 
-  @types [
-    :email,
-    :phone,
-    :google,
-    :github,
-    :apple,
-    :microsoft,
-    :discord,
-    :saml
-  ]
-
   @schema_prefix "auth"
   schema "identities" do
-    field(:type, Ecto.Enum, values: @types)
+    field(:provider, :string)
     field(:value, :string)
     field(:verified_at, :utc_datetime)
 
@@ -29,18 +18,18 @@ defmodule EzAuth.Accounts.Identity do
     timestamps(type: :utc_datetime)
   end
 
-  def changeset(%User{} = user, type, value) do
+  def changeset(%User{} = user, provider, value) do
     %Identity{user_id: user.id}
-    |> change(type: type, value: value)
-    |> unique_constraint([:type, :value], message: "has already been taken")
+    |> change(provider: provider, value: value)
+    |> unique_constraint([:provider, :value], message: "has already been taken")
   end
 
-  def update_verified_at_query(%User{} = user, type, value) do
+  def update_verified_at_query(%User{} = user, provider, value) do
     now = DateTime.utc_now(:second)
 
     already_claimed =
       from(o in Identity,
-        where: o.type == ^type,
+        where: o.provider == ^provider,
         where: o.value == ^value,
         where: o.user_id != ^user.id,
         where: not is_nil(o.verified_at)
@@ -48,16 +37,16 @@ defmodule EzAuth.Accounts.Identity do
 
     from(i in Identity,
       where: i.user_id == ^user.id,
-      where: i.type == ^type,
+      where: i.provider == ^provider,
       where: i.value == ^value,
       where: not exists(subquery(already_claimed)),
       update: [set: [verified_at: coalesce(i.verified_at, ^now)]]
     )
   end
 
-  def verified_by_type_and_value_query(type, value) do
+  def verified_by_provider_and_value_query(provider, value) do
     from(i in Identity,
-      where: i.type == ^type,
+      where: i.provider == ^provider,
       where: i.value == ^value,
       where: not is_nil(i.verified_at)
     )

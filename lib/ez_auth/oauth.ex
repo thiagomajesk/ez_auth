@@ -7,13 +7,13 @@ defmodule EzAuth.OAuth do
   @callback fetch_identity(code :: String.t()) :: {:ok, String.t()} | {:error, term()}
 
   defmacro __using__(opts) do
-    id = Keyword.fetch!(opts, :id)
+    provider = Keyword.fetch!(opts, :provider)
     {user_url, opts} = Keyword.pop(opts, :user_url)
     {headers, opts} = Keyword.pop(opts, :headers, [])
     {token_url, opts} = Keyword.pop!(opts, :token_url)
     {authorize_url, opts} = Keyword.pop!(opts, :authorize_url)
-    state_key = :"ez_auth_#{id}_state"
-    opts = Keyword.merge(opts, identity: id, kind: :social)
+    state_key = :"ez_auth_#{provider}_state"
+    opts = Keyword.merge(opts, identity: :external, kind: :social)
 
     quote do
       use EzAuth.Strategy, unquote(opts)
@@ -27,7 +27,7 @@ defmodule EzAuth.OAuth do
       @behaviour EzAuth.OAuth
 
       @oauth_headers unquote(headers)
-      @oauth_identity unquote(id)
+      @oauth_identity unquote(provider)
       @oauth_user_url unquote(user_url)
       @oauth_token_url unquote(token_url)
       @oauth_state_key unquote(state_key)

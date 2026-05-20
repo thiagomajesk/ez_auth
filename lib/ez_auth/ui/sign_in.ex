@@ -179,7 +179,7 @@ defmodule EzAuth.UI.SignIn do
   defp social_strategies(strategies) do
     strategies
     |> Enum.filter(&(&1.__meta__(:kind) == :social))
-    |> Enum.uniq_by(& &1.__meta__(:identity))
+    |> Enum.uniq_by(& &1.__meta__(:provider))
   end
 
   # Reveal password when a credential strategy is enabled

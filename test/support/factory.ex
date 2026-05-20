@@ -53,7 +53,7 @@ defmodule EzAuth.Test.Factory do
   def identity_factory do
     %Identity{
       user: build(:user),
-      type: :email,
+      provider: "email",
       value: sequence(:email, &"user#{&1}@example.com"),
       verified_at: nil
     }

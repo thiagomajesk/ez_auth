@@ -31,10 +31,10 @@ defmodule EzAuth.Accounts.User do
     timestamps(type: :utc_datetime)
   end
 
-  def by_identity_query(type, value) do
+  def by_identity_query(provider, value) do
     from(u in User,
       join: i in assoc(u, :identities),
-      where: i.type == ^type,
+      where: i.provider == ^provider,
       where: i.value == ^value,
       where: not is_nil(i.verified_at)
     )

@@ -38,7 +38,7 @@ defmodule EzAuth.UI.Core.Buttons do
   def submit(assigns) do
     ~H"""
     <.action
-      icon={:arrow_right}
+      icon="arrow_right"
       label={submit_label(@label)}
       type={:submit}
       variant="submit"
@@ -56,7 +56,7 @@ defmodule EzAuth.UI.Core.Buttons do
 
   ## Options
 
-    * `:icon` - optional icon atom supported by `EzAuth.UI.Core.icon/1`. Always
+    * `:icon` - optional icon name supported by `EzAuth.UI.Core.icon/1`. Always
       rendered to the left of the label at a fixed size.
     * `:label` - optional text rendered next to the icon.
     * `:variant` - the `data-part` written on the rendered `<button>`.
@@ -74,10 +74,10 @@ defmodule EzAuth.UI.Core.Buttons do
 
   ## Examples
 
-      <EzAuth.UI.Core.Buttons.action icon={:google} type={:submit} />
-      <EzAuth.UI.Core.Buttons.action icon={:github} label="Sign in with GitHub" phx-click="oauth_github" />
+      <EzAuth.UI.Core.Buttons.action icon="google" type={:submit} />
+      <EzAuth.UI.Core.Buttons.action icon="github" label="Sign in with GitHub" phx-click="oauth_github" />
   """
-  attr(:icon, :atom, default: nil)
+  attr(:icon, :string, default: nil)
   attr(:label, :string, default: nil)
   attr(:variant, :string, default: "action")
   attr(:type, :atom, values: [:button, :submit], default: :button)
@@ -98,7 +98,7 @@ defmodule EzAuth.UI.Core.Buttons do
   Renders a strategy as a form-submit action button.
 
   Derives the icon and label from the strategy's callbacks: identity drives
-  the icon (with `:magic_link` overriding to `:link`); name fills the
+  the icon (with `"magic_link"` overriding to `"link"`); name fills the
   "Continue with {name}" label. Social strategies submit a POST request.
   Passwordless strategies submit a GET request to the sign-in page with the
   selected strategy.
@@ -110,7 +110,7 @@ defmodule EzAuth.UI.Core.Buttons do
   ## Styling
 
     * `[data-part="action"]` - the button container.
-    * `[data-strategy={id}]` - strategy id on the button.
+    * `[data-strategy={provider}]` - strategy provider on the button.
 
   ## Examples
 
@@ -125,7 +125,7 @@ defmodule EzAuth.UI.Core.Buttons do
 
     assigns =
       assigns
-      |> assign(:id, meta.id)
+      |> assign(:provider, meta.provider)
       |> assign(:action, action)
       |> assign(:method, method)
       |> assign(:title, meta.name)
@@ -142,18 +142,18 @@ defmodule EzAuth.UI.Core.Buttons do
         name="strategy"
         value={@slug}
         title={@title}
-        data-strategy={@id}
+        data-strategy={@provider}
         {@rest}
       />
     </.form>
     """
   end
 
-  defp icon_for(%{id: :magic_link}), do: :link
-  defp icon_for(%{id: :whatsapp}), do: :whatsapp
-  defp icon_for(%{kind: :social} = meta), do: meta.identity
-  defp icon_for(%{identity: :email}), do: :envelope
-  defp icon_for(%{identity: :phone}), do: :phone
+  defp icon_for(%{provider: "magic_link"}), do: "link"
+  defp icon_for(%{provider: "whatsapp"}), do: "whatsapp"
+  defp icon_for(%{kind: :social} = meta), do: meta.provider
+  defp icon_for(%{identity: :email}), do: "envelope"
+  defp icon_for(%{identity: :phone}), do: "phone"
 
   defp strategy_metadata(strategy) do
     case strategy.__meta__(:kind) do

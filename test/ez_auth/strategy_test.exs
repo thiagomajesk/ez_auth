@@ -7,7 +7,7 @@ defmodule EzAuth.StrategyTest do
 
   defmodule Incomplete do
     use EzAuth.Strategy,
-      id: :incomplete,
+      provider: "incomplete",
       name: "incomplete",
       identity: :email,
       kind: :passwordless
@@ -15,7 +15,7 @@ defmodule EzAuth.StrategyTest do
 
   defmodule MagicLink do
     use EzAuth.Strategy,
-      id: :magic_link,
+      provider: "magic_link",
       name: "link",
       identity: :email,
       kind: :passwordless
@@ -23,7 +23,7 @@ defmodule EzAuth.StrategyTest do
 
   defmodule PostCallback do
     use EzAuth.Strategy,
-      id: :post_callback,
+      provider: "post_callback",
       name: "post callback",
       identity: :email,
       kind: :passwordless,
@@ -32,7 +32,7 @@ defmodule EzAuth.StrategyTest do
 
   defmodule Partial do
     use EzAuth.Strategy,
-      id: :partial,
+      provider: "partial",
       name: "partial",
       identity: :email,
       kind: :passwordless
@@ -43,14 +43,14 @@ defmodule EzAuth.StrategyTest do
 
   test "use defines strategy metadata" do
     assert MagicLink.__meta__() == %{
-             id: :magic_link,
+             provider: "magic_link",
              name: "link",
              identity: :email,
              kind: :passwordless,
              callback_methods: [:get]
            }
 
-    assert MagicLink.__meta__(:id) == :magic_link
+    assert MagicLink.__meta__(:provider) == "magic_link"
     assert MagicLink.__meta__(:name) == "link"
     assert MagicLink.__meta__(:identity) == :email
     assert MagicLink.__meta__(:kind) == :passwordless

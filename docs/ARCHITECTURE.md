@@ -29,7 +29,7 @@ Ways a user is known. Multi-valued: a user may have several emails or phones, an
 |---|---|---|
 | `id` | bigint PK | auto-generated surrogate key |
 | `user_id` | bigint FK -> users, NOT NULL, cascade | owning user |
-| `type` | Ecto.Enum, NOT NULL | identity kind (`:email`, `:phone`, plus provider atoms such as `:apple`, `:github`, `:google`, and `:microsoft`) |
+| `provider` | string, NOT NULL | provider namespace (`"email"`, `"phone"`, `"apple"`, `"github"`, `"google"`, `"microsoft"`, or a host-defined provider) |
 | `value` | citext, NOT NULL | the email, phone, or provider identity string |
 | `verified_at` | utc_datetime, nullable | set when ownership proof completes |
 | `inserted_at` | utc_datetime | record creation timestamp |
@@ -79,7 +79,7 @@ Single-use challenges tied to an auth flow. Immutable after insert, except that 
 
 * `EzAuth.Auth`: the web/connection layer. Manages session cookies, assigns the current authenticated scope to conn requests, and provides plug-level guards (`require_authenticated`, `redirect_if_authenticated`). `sign_in_user/2` is the standard entrypoint for creating sessions from HTTP and LiveView flows. This module calls into `Accounts` for token storage but never bypasses it.
 
-* `Strategies`: self-contained flow orchestrators. Each strategy uses `EzAuth.Strategy` with stable metadata (`:id`, `:name`, `:identity`, `:kind`, and `:callback_methods`), handles request/callback parsing, and decides which auth flow is being executed. Routes are derived from the strategy id: each strategy gets `POST /auth/:strategy/request` and one or more `/auth/:strategy/callback` routes. Strategies call `Accounts` for user lookups and verification, and `Auth` for session creation. They do not own sign-up, session persistence, or verification state. The dispatcher routes strategy outcomes to host-app callbacks defined by the `EzAuth.Handler` behaviour.
+* `Strategies`: self-contained flow orchestrators. Each strategy uses `EzAuth.Strategy` with stable metadata (`:provider`, `:name`, `:identity`, `:kind`, and `:callback_methods`), handles request/callback parsing, and decides which auth flow is being executed. Routes are derived from the strategy provider: each strategy gets `POST /auth/:strategy/request` and one or more `/auth/:strategy/callback` routes. Strategies call `Accounts` for user lookups and verification, and `Auth` for session creation. They do not own sign-up, session persistence, or verification state. The dispatcher routes strategy outcomes to host-app callbacks defined by the `EzAuth.Handler` behaviour.
 
 * `EzAuth.Accounts.*` (User, Identity, Session, Token, Verification): internal Ecto schemas and persistence helpers. These modules support `Accounts`; host apps should call the public `Accounts` boundary instead.
 
@@ -130,7 +130,7 @@ Dispatcher.callback/2
 └── Handler.handle_success/3
 ```
 
-The password callback consumes the email verification token and marks the email identity as verified without signing the user in. This callback returns the connection unchanged on success, so hosts that expose it must implement `handle_success/3` for `{:password, :callback}` to send a response.
+The password callback consumes the email verification token and marks the email identity as verified without signing the user in. This callback returns the connection unchanged on success, so hosts that expose it must implement `handle_success/3` for `{EzAuth.Strategies.Password, :callback}` to send a response.
 
 #### Magic link
 
@@ -145,7 +145,7 @@ Dispatcher.request/2
 └── Handler.handle_success/3
 ```
 
-The request action does not create a session. It issues a verification token and dispatches it through the sender. The user is not signed in until they click the link and hit the callback action. This action returns the connection unchanged on success, so hosts that expose it must implement `handle_success/3` for `{:magic_link, :request}` to send a response.
+The request action does not create a session. It issues a verification token and dispatches it through the sender. The user is not signed in until they click the link and hit the callback action. This action returns the connection unchanged on success, so hosts that expose it must implement `handle_success/3` for `{EzAuth.Strategies.MagicLink, :request}` to send a response.
 
 ##### Callback
 
@@ -206,7 +206,7 @@ Sign-out revokes the current session token and broadcasts a disconnect to any Li
 
 * Email verification and email magic-link sign-in use the same trust boundary: control of the inbox proves both ownership and authentication. The password strategy uses email verification without sign-in; the magic-link strategy verifies email and creates a session in one step.
 
-* Once an identity is verified, the user can sign in with any enabled implemented strategy that uses that identity type. For example, a verified email can be used for password login or magic link. Verification proves the user controls the identity; strategies define the ways to authenticate with it. If you need stricter rules (e.g., "verification only, no magic link"), enforce them in your app.
+* Once an identity is verified, the user can sign in with any enabled implemented strategy that uses that identity provider. For example, a verified email can be used for password login or magic link. Verification proves the user controls the identity; strategies define the ways to authenticate with it. If you need stricter rules (e.g., "verification only, no magic link"), enforce them in your app.
 
 * Phone identities must be in E.164 format (e.g., `+15551234567`). EzAuth validates the format with the regex `^\+[1-9]\d{1,14}$`; anything else fails validation. The library won't try to parse friendly formats like `(555) 123-4567` because country and UX context varies. Normalize phone input in your app before passing it to EzAuth.
 

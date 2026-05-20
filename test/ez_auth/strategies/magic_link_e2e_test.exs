@@ -36,7 +36,7 @@ defmodule EzAuth.Strategies.MagicLinkE2ETest do
                MagicLink.callback(build_session_conn(), %{"token" => token})
 
       assert get_session(conn, :user_token)
-      assert QueryHelpers.fetch_identity!(TestRepo, :email, "user@example.com").verified_at
+      assert QueryHelpers.fetch_identity!(TestRepo, "email", "user@example.com").verified_at
     end
 
     test "returns invalid_token for malformed tokens" do

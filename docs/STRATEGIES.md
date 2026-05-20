@@ -48,7 +48,7 @@ Each strategy section starts with:
 
 ### GitHub
 
-Use GitHub when users should sign in with a GitHub OAuth App. GitHub verifies the user during the OAuth callback, then EzAuth creates or finds a verified `:github` identity for that provider user ID.
+Use GitHub when users should sign in with a GitHub OAuth App. GitHub verifies the user during the OAuth callback, then EzAuth creates or finds a verified `"github"` identity for that provider user ID.
 
 - **Site:** [GitHub](https://github.com)
 - **Reference:** [Authorizing OAuth apps](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps)
@@ -106,7 +106,7 @@ EzAuth uses that endpoint URL to build the OAuth callback URL it sends to GitHub
 
 Use Google when users should sign in with a Google OAuth client. Google verifies
 the user during the OAuth callback, then EzAuth creates or finds a verified
-`:google` identity for the provider subject.
+`"google"` identity for the provider subject.
 
 - **Site:** [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 - **Reference:** [OAuth 2.0 for Web Server Applications](https://developers.google.com/identity/protocols/oauth2/web-server)
@@ -143,7 +143,7 @@ config :ez_auth,
 
 Use Microsoft when users should sign in with the Microsoft identity platform.
 Microsoft verifies the user during the OAuth callback, then EzAuth creates or
-finds a verified `:microsoft` identity for the provider user ID.
+finds a verified `"microsoft"` identity for the provider user ID.
 
 - **Site:** [Microsoft Entra admin center](https://entra.microsoft.com)
 - **Reference:** [OAuth 2.0 authorization code flow](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow)
@@ -181,7 +181,7 @@ config :ez_auth,
 
 Use Apple when users should sign in with Sign in with Apple. Apple verifies the
 user during the OAuth callback, then EzAuth verifies the returned ID token and
-creates or finds a verified `:apple` identity for the provider subject.
+creates or finds a verified `"apple"` identity for the provider subject.
 
 - **Site:** [Apple Developer](https://developer.apple.com/account)
 - **Reference:** [Sign in with Apple REST API](https://developer.apple.com/documentation/signinwithapplerestapi)

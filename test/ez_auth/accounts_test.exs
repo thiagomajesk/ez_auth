@@ -21,11 +21,11 @@ defmodule EzAuth.AccountsTest do
         |> build()
         |> Map.put("email", "new@example.com")
 
-      assert {:ok, {%User{id: user_id}, %Identity{type: :email}}} =
+      assert {:ok, {%User{id: user_id}, %Identity{provider: "email"}}} =
                Accounts.create_user_with_password(attrs)
 
       assert %{user_id: ^user_id, verified_at: nil} =
-               QueryHelpers.fetch_identity!(TestRepo, :email, "new@example.com")
+               QueryHelpers.fetch_identity!(TestRepo, "email", "new@example.com")
     end
   end
 
@@ -36,11 +36,11 @@ defmodule EzAuth.AccountsTest do
       assert {:ok, {%User{id: user_id}, identity}} =
                Accounts.create_user_with_email("fresh@example.com")
 
-      assert %Identity{type: :email, value: "fresh@example.com", user: %User{id: ^user_id}} =
+      assert %Identity{provider: "email", value: "fresh@example.com", user: %User{id: ^user_id}} =
                identity
 
       assert %{user_id: ^user_id, verified_at: nil} =
-               QueryHelpers.fetch_identity!(TestRepo, :email, "fresh@example.com")
+               QueryHelpers.fetch_identity!(TestRepo, "email", "fresh@example.com")
     end
   end
 
@@ -51,10 +51,11 @@ defmodule EzAuth.AccountsTest do
       assert {:ok, {%User{id: user_id}, identity}} =
                Accounts.create_user_with_phone("+15551234567")
 
-      assert %Identity{type: :phone, value: "+15551234567", user: %User{id: ^user_id}} = identity
+      assert %Identity{provider: "phone", value: "+15551234567", user: %User{id: ^user_id}} =
+               identity
 
       assert %{user_id: ^user_id, verified_at: nil} =
-               QueryHelpers.fetch_identity!(TestRepo, :phone, "+15551234567")
+               QueryHelpers.fetch_identity!(TestRepo, "phone", "+15551234567")
     end
   end
 
@@ -66,7 +67,7 @@ defmodule EzAuth.AccountsTest do
       existing =
         insert(:identity,
           user: user,
-          type: :email,
+          provider: "email",
           value: "known@example.com",
           verified_at: DateTime.utc_now(:second)
         )
@@ -81,11 +82,11 @@ defmodule EzAuth.AccountsTest do
     test "creates a passwordless user when no verified identity exists" do
       base_config()
 
-      assert {:ok, {%User{id: user_id}, %Identity{type: :email, value: "fresh@example.com"}}} =
+      assert {:ok, {%User{id: user_id}, %Identity{provider: "email", value: "fresh@example.com"}}} =
                Accounts.find_or_create_email_identity("fresh@example.com")
 
       assert %{user_id: ^user_id, verified_at: nil} =
-               QueryHelpers.fetch_identity!(TestRepo, :email, "fresh@example.com")
+               QueryHelpers.fetch_identity!(TestRepo, "email", "fresh@example.com")
     end
   end
 
@@ -93,11 +94,11 @@ defmodule EzAuth.AccountsTest do
     test "creates a passwordless user when no verified identity exists" do
       base_config()
 
-      assert {:ok, {%User{id: user_id}, %Identity{type: :phone, value: "+15551234567"}}} =
+      assert {:ok, {%User{id: user_id}, %Identity{provider: "phone", value: "+15551234567"}}} =
                Accounts.find_or_create_phone_identity("+15551234567")
 
       assert %{user_id: ^user_id, verified_at: nil} =
-               QueryHelpers.fetch_identity!(TestRepo, :phone, "+15551234567")
+               QueryHelpers.fetch_identity!(TestRepo, "phone", "+15551234567")
     end
   end
 
@@ -109,13 +110,13 @@ defmodule EzAuth.AccountsTest do
       existing =
         insert(:identity,
           user: user,
-          type: :github,
+          provider: "github",
           value: "12345",
           verified_at: DateTime.utc_now(:second)
         )
 
       assert {:ok, {%User{id: user_id}, %Identity{id: identity_id}}} =
-               Accounts.find_or_create_social_identity(:github, "12345")
+               Accounts.find_or_create_social_identity("github", "12345")
 
       assert user_id == user.id
       assert identity_id == existing.id
@@ -124,11 +125,11 @@ defmodule EzAuth.AccountsTest do
     test "creates a passwordless user with a verified provider identity when missing" do
       base_config()
 
-      assert {:ok, {%User{id: user_id}, %Identity{type: :github, value: "12345"}}} =
-               Accounts.find_or_create_social_identity(:github, "12345")
+      assert {:ok, {%User{id: user_id}, %Identity{provider: "github", value: "12345"}}} =
+               Accounts.find_or_create_social_identity("github", "12345")
 
       assert %{user_id: ^user_id, verified_at: verified_at} =
-               QueryHelpers.fetch_identity!(TestRepo, :github, "12345")
+               QueryHelpers.fetch_identity!(TestRepo, "github", "12345")
 
       assert verified_at
     end
@@ -435,7 +436,7 @@ defmodule EzAuth.AccountsTest do
       base_config(%{sender: Sender})
 
       %{user: %User{id: user_id}} =
-        identity = insert(:identity, type: :phone, value: "+15551234567", verified_at: nil)
+        identity = insert(:identity, provider: "phone", value: "+15551234567", verified_at: nil)
 
       expect(Sender, :deliver, fn :sms_otp, {%User{id: ^user_id}, token} ->
         assert token.type == :code
@@ -463,7 +464,7 @@ defmodule EzAuth.AccountsTest do
       assert {:ok, %Verification{user: %User{id: ^user_id}}} =
                Accounts.verify_link(token, :email)
 
-      assert QueryHelpers.fetch_identity!(TestRepo, :email, "verify@example.com").verified_at
+      assert QueryHelpers.fetch_identity!(TestRepo, "email", "verify@example.com").verified_at
 
       assert_raise Ecto.NoResultsError, fn ->
         QueryHelpers.fetch_verification!(TestRepo, :email, "verify@example.com")
@@ -509,7 +510,7 @@ defmodule EzAuth.AccountsTest do
       assert {:ok, %Verification{user: %User{id: ^user_id}}} =
                Accounts.verify_link(token, :email)
 
-      identity = QueryHelpers.fetch_identity!(TestRepo, :email, "repeat@example.com")
+      identity = QueryHelpers.fetch_identity!(TestRepo, "email", "repeat@example.com")
       assert DateTime.compare(identity.verified_at, original_verified_at) == :eq
     end
 
@@ -532,7 +533,7 @@ defmodule EzAuth.AccountsTest do
       second_row =
         TestRepo.get_by!(Identity,
           user_id: second_user.id,
-          type: :email,
+          provider: "email",
           value: "race@example.com"
         )
 
@@ -592,7 +593,7 @@ defmodule EzAuth.AccountsTest do
       assert {:ok, %Verification{user: %User{id: ^user_id}}} =
                Accounts.verify_code(code, :email, "otp@example.com")
 
-      assert QueryHelpers.fetch_identity!(TestRepo, :email, "otp@example.com").verified_at
+      assert QueryHelpers.fetch_identity!(TestRepo, "email", "otp@example.com").verified_at
 
       assert_raise Ecto.NoResultsError, fn ->
         QueryHelpers.fetch_verification!(TestRepo, :email, "otp@example.com")
@@ -612,14 +613,14 @@ defmodule EzAuth.AccountsTest do
       base_config()
 
       %{user: %User{id: user_id} = user} =
-        insert(:identity, type: :phone, value: "+15551234567", verified_at: nil)
+        insert(:identity, provider: "phone", value: "+15551234567", verified_at: nil)
 
       {code, _verification} = insert_verification_code(user, :phone, "+15551234567")
 
       assert {:ok, %Verification{user: %User{id: ^user_id}}} =
                Accounts.verify_code(code, :phone, "+15551234567")
 
-      assert QueryHelpers.fetch_identity!(TestRepo, :phone, "+15551234567").verified_at
+      assert QueryHelpers.fetch_identity!(TestRepo, "phone", "+15551234567").verified_at
 
       assert_raise Ecto.NoResultsError, fn ->
         QueryHelpers.fetch_verification!(TestRepo, :phone, "+15551234567")
@@ -629,7 +630,9 @@ defmodule EzAuth.AccountsTest do
     test "returns :invalid_token when phone does not match the verification" do
       base_config()
 
-      %{user: user} = insert(:identity, type: :phone, value: "+15551234567", verified_at: nil)
+      %{user: user} =
+        insert(:identity, provider: "phone", value: "+15551234567", verified_at: nil)
+
       {code, _verification} = insert_verification_code(user, :phone, "+15551234567")
 
       assert {:error, :invalid_token} =

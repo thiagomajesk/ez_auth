@@ -63,17 +63,4 @@ defmodule EzAuth.ConfigTest do
       end
     end
   end
-
-  describe "social_providers/0" do
-    test "derives social providers from configured strategy names" do
-      with_env(:strategies, [
-        EzAuth.Strategies.Password,
-        EzAuth.Strategies.Google,
-        EzAuth.Strategies.MagicLink,
-        EzAuth.Strategies.GitHub
-      ])
-
-      assert Config.social_providers() == [:google, :github]
-    end
-  end
 end

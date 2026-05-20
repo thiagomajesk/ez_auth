@@ -8,8 +8,8 @@ defmodule EzAuth.Accounts.IdentityTest do
     test "builds an identity changeset for the user" do
       user = %User{id: 10}
 
-      assert %{valid?: true, changes: %{type: :email, value: "user@example.com"}} =
-               Identity.changeset(user, :email, "user@example.com")
+      assert %{valid?: true, changes: %{provider: "email", value: "user@example.com"}} =
+               Identity.changeset(user, "email", "user@example.com")
     end
   end
 end

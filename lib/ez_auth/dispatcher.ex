@@ -16,14 +16,13 @@ defmodule EzAuth.Dispatcher do
 
   defp dispatch(conn, params, action) do
     %{strategy: strategy, handler: handler} = conn.private.ez_auth
-    event = {strategy.__meta__(:id), action}
 
     case apply(strategy, action, [conn, params]) do
       {:ok, conn, user} ->
-        Handler.maybe_invoke(conn, handler, :handle_success, [event, user])
+        Handler.maybe_invoke(conn, handler, :handle_success, [{strategy, action}, user])
 
       {:error, reason} ->
-        maybe_handle_failure(conn, handler, event, reason)
+        maybe_handle_failure(conn, handler, {strategy, action}, reason)
     end
   end
 

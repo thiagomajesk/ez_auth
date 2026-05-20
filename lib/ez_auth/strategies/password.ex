@@ -2,7 +2,7 @@ defmodule EzAuth.Strategies.Password do
   @moduledoc false
 
   use EzAuth.Strategy,
-    id: :password,
+    provider: "password",
     name: "password",
     identity: :email,
     kind: :credential

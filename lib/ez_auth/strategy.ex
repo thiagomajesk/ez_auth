@@ -22,7 +22,7 @@ defmodule EzAuth.Strategy do
   @type result :: {:ok, Plug.Conn.t(), user :: struct() | nil} | {:error, reason :: term()}
 
   @type meta :: %{
-          id: atom(),
+          provider: String.t(),
           name: String.t(),
           identity: atom(),
           kind: :credential | :passwordless | :social,
@@ -35,14 +35,14 @@ defmodule EzAuth.Strategy do
   @callback callback(conn :: Plug.Conn.t(), params :: map()) :: result
 
   defmacro __using__(opts) do
-    id = Keyword.fetch!(opts, :id)
+    provider = Keyword.fetch!(opts, :provider)
     name = Keyword.fetch!(opts, :name)
     identity = Keyword.fetch!(opts, :identity)
     kind = Keyword.fetch!(opts, :kind)
     callback_methods = Keyword.get(opts, :callback_methods, [:get])
 
-    if not is_atom(id),
-      do: raise(ArgumentError, "strategy :id must be an atom")
+    if not is_binary(provider),
+      do: raise(ArgumentError, "strategy :provider must be a string")
 
     if not is_binary(name),
       do: raise(ArgumentError, "strategy :name must be a string")
@@ -72,7 +72,7 @@ defmodule EzAuth.Strategy do
       @impl true
       def __meta__ do
         %{
-          id: unquote(id),
+          provider: unquote(provider),
           name: unquote(name),
           identity: unquote(identity),
           kind: unquote(kind),
@@ -100,7 +100,7 @@ defmodule EzAuth.Strategy do
   end
 
   def slug(strategy) do
-    id = strategy.__meta__(:id)
-    String.replace(to_string(id), "_", "-")
+    provider = strategy.__meta__(:provider)
+    String.replace(provider, "_", "-")
   end
 end

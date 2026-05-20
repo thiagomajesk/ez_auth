@@ -6,8 +6,8 @@ defmodule EzAuth.Test.QueryHelpers do
   alias EzAuth.Accounts.Identity
   alias EzAuth.Accounts.Verification
 
-  def fetch_identity!(repo, type, value) do
-    repo.one!(from(i in Identity, where: i.type == ^type, where: i.value == ^value))
+  def fetch_identity!(repo, provider, value) do
+    repo.one!(from(i in Identity, where: i.provider == ^provider, where: i.value == ^value))
   end
 
   def fetch_verification!(repo, type, value) do

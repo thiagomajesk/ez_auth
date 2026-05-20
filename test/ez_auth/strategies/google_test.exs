@@ -57,7 +57,7 @@ defmodule EzAuth.Strategies.GoogleTest do
         {:ok, %{"sub" => 12_345}}
       end)
 
-      expect(Accounts, :find_or_create_social_identity, fn :google, "12345" ->
+      expect(Accounts, :find_or_create_social_identity, fn "google", "12345" ->
         {:ok, {user, %{}}}
       end)
 

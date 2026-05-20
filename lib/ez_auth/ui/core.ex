@@ -135,14 +135,14 @@ defmodule EzAuth.UI.Core do
   both width and height).
 
   Icons are sourced from [Remix Icon](https://remixicon.com) (Apache 2.0).
-  Supported names: brand icons (`:apple`, `:facebook`, `:github`, `:google`,
-  `:microsoft`, `:x`) and generic UI icons (`:link`, `:phone`, `:envelope`,
-  `:arrow_right`). See `EzAuth.UI.Core.Icon` for the exact Remix Icon
+  Supported names: brand icons (`"apple"`, `"facebook"`, `"github"`, `"google"`,
+  `"microsoft"`, `"x"`) and generic UI icons (`"link"`, `"phone"`, `"envelope"`,
+  `"arrow_right"`). See `EzAuth.UI.Core.Icon` for the exact Remix Icon
   mappings.
 
   ## Options
 
-    * `:name` - icon atom to render (required).
+    * `:name` - icon name to render (required).
     * `:size` - edge length in pixels (required).
 
   ## Styling
@@ -152,10 +152,10 @@ defmodule EzAuth.UI.Core do
 
   ## Examples
 
-      <EzAuth.UI.Core.icon name={:google} size={20} />
-      <EzAuth.UI.Core.icon name={:link} size={20} />
+      <EzAuth.UI.Core.icon name="google" size={20} />
+      <EzAuth.UI.Core.icon name="link" size={20} />
   """
-  attr(:name, :atom, required: true)
+  attr(:name, :string, required: true)
   attr(:size, :integer, required: true)
   attr(:rest, :global)
 

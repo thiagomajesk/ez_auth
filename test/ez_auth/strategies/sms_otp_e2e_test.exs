@@ -15,7 +15,7 @@ defmodule EzAuth.Strategies.SmsOtpE2ETest do
       stub_config()
 
       insert(:identity,
-        type: :phone,
+        provider: "phone",
         value: "+15551234567",
         verified_at: DateTime.utc_now(:second)
       )
@@ -33,7 +33,7 @@ defmodule EzAuth.Strategies.SmsOtpE2ETest do
       stub_config()
 
       %{user: %{id: user_id} = user} =
-        insert(:identity, type: :phone, value: "+15551234567", verified_at: nil)
+        insert(:identity, provider: "phone", value: "+15551234567", verified_at: nil)
 
       {code, _verification} = insert_verification_code(user, :phone, "+15551234567")
 
@@ -41,14 +41,17 @@ defmodule EzAuth.Strategies.SmsOtpE2ETest do
                SmsOtp.callback(build_session_conn(), %{"phone" => "+15551234567", "code" => code})
 
       assert get_session(conn, :user_token)
-      assert QueryHelpers.fetch_identity!(TestRepo, :phone, "+15551234567").verified_at
+      assert QueryHelpers.fetch_identity!(TestRepo, "phone", "+15551234567").verified_at
     end
 
     test "returns invalid_token for malformed codes" do
       stub_config()
 
       assert {:error, :invalid_token} =
-               SmsOtp.callback(build_session_conn(), %{"phone" => "+15551234567", "code" => "bogus"})
+               SmsOtp.callback(build_session_conn(), %{
+                 "phone" => "+15551234567",
+                 "code" => "bogus"
+               })
     end
   end
 end

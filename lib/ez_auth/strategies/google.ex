@@ -2,7 +2,7 @@ defmodule EzAuth.Strategies.Google do
   @moduledoc false
 
   use EzAuth.OAuth,
-    id: :google,
+    provider: "google",
     name: "Google",
     user_url: "https://openidconnect.googleapis.com/v1/userinfo",
     authorize_url: "https://accounts.google.com/o/oauth2/v2/auth",

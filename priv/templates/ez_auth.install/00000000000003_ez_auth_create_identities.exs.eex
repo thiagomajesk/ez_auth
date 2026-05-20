@@ -7,14 +7,14 @@ defmodule <%= inspect repo %>.Migrations.EzAuthCreateIdentities do
   def change do
     create table(:identities, prefix: "auth") do
       add :user_id, references(:users, prefix: "auth", on_delete: :delete_all), null: false
-      add :type, :string, null: false
+      add :provider, :string, null: false
       add :value, :citext, null: false
       add :verified_at, :utc_datetime
 
       timestamps(type: :utc_datetime)
     end
 
-    create unique_index(:identities, [:type, :value],
+    create unique_index(:identities, [:provider, :value],
              prefix: "auth",
              where: "verified_at IS NOT NULL"
            )

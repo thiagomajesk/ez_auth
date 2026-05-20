@@ -13,7 +13,12 @@ defmodule EzAuth.Strategies.MagicLinkTest do
       stub_config()
       conn = build_session_conn()
       user = %{id: 1}
-      identity = %EzAuth.Accounts.Identity{type: :email, value: "user@example.com", user: user}
+
+      identity = %EzAuth.Accounts.Identity{
+        provider: "email",
+        value: "user@example.com",
+        user: user
+      }
 
       expect(Accounts, :find_or_create_email_identity, fn "user@example.com" ->
         {:ok, {user, identity}}

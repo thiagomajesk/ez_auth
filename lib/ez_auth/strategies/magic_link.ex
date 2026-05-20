@@ -2,7 +2,7 @@ defmodule EzAuth.Strategies.MagicLink do
   @moduledoc false
 
   use EzAuth.Strategy,
-    id: :magic_link,
+    provider: "magic_link",
     name: "link",
     identity: :email,
     kind: :passwordless

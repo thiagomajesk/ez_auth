@@ -17,7 +17,7 @@ defmodule EzAuth.Strategies.SmsOtpTest do
       stub_config()
       conn = build_session_conn()
       user = %{id: 1}
-      identity = %EzAuth.Accounts.Identity{type: :phone, value: "+15551234567", user: user}
+      identity = %EzAuth.Accounts.Identity{provider: "phone", value: "+15551234567", user: user}
 
       expect(Accounts, :find_or_create_phone_identity, fn "+15551234567" ->
         {:ok, {user, identity}}

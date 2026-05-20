@@ -7,8 +7,6 @@ defmodule EzAuth.Config do
   library threads a config carrier through public APIs.
   """
 
-  @socials ~w(apple github google microsoft)a
-
   def after_sign_in_path, do: env(:after_sign_in_path, :string, "/")
 
   def apple_client_id!, do: env!(:apple_client_id, :string)
@@ -99,12 +97,6 @@ defmodule EzAuth.Config do
   def username_max_length, do: env(:username_max_length, :integer, 64)
 
   def username_min_length, do: env(:username_min_length, :integer, 3)
-
-  def social_providers do
-    EzAuth.Config.strategies()
-    |> Enum.map(& &1.__meta__(:id))
-    |> Enum.filter(&(&1 in @socials))
-  end
 
   def strategies, do: env(:strategies, :list, [])
 

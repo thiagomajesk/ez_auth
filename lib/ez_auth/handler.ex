@@ -9,14 +9,14 @@ defmodule EzAuth.Handler do
 
   @callback handle_success(
               conn :: struct(),
-              event :: {atom(), atom()},
+              event :: {module() | :default, atom()},
               user :: struct()
             ) ::
               struct()
 
   @callback handle_failure(
               conn :: struct(),
-              event :: {atom(), atom()},
+              event :: {module() | :default, atom()},
               reason :: term()
             ) ::
               struct()

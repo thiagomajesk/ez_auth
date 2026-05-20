@@ -2,7 +2,7 @@ defmodule EzAuth.Strategies.GitHub do
   @moduledoc false
 
   use EzAuth.OAuth,
-    id: :github,
+    provider: "github",
     name: "GitHub",
     user_url: "https://api.github.com/user",
     authorize_url: "https://github.com/login/oauth/authorize",
