@@ -67,7 +67,7 @@ Single-use challenges tied to an auth flow. Immutable after insert, except that 
 * `lib/ez_auth.ex`: top-level integration surface (route macros, LiveView on_mount, use macro)
 * `lib/ez_auth/`: core modules (accounts, auth, config, dispatcher, handler, sender, strategy, error_helpers)
 * `lib/ez_auth/accounts/`: Ecto schemas and persistence helpers (user, identity, session, token, verification)
-* `lib/ez_auth/strategies/`: authentication strategy implementations and placeholders (password, magic link, email OTP, SMS OTP, WhatsApp, Apple, GitHub, Google, Microsoft)
+* `lib/ez_auth/strategies/`: authentication strategy implementations and placeholders (password, magic link, email OTP, phone OTP, Apple, GitHub, Google, Microsoft)
 * `lib/ez_auth/scopes/`: context structs passed through the auth pipeline (user scope, sender scope)
 * `lib/ez_auth/ui/`: unstyled LiveComponents and function components for sign-in, sign-up, verification, recovery, and reset flows
 
@@ -87,7 +87,7 @@ Single-use challenges tied to an auth flow. Immutable after insert, except that 
 
 ### Sign-up
 
-Sign-up is **email + password only**. Passwordless flows (`magic_link`, `sms_otp`, `whatsapp`) do not have a separate sign-up surface; implemented passwordless flows create the user during the request step when needed (see "Passwordless creates on demand" below).
+Sign-up is **email + password only**. Passwordless flows (`magic_link`, `phone_otp`) do not have a separate sign-up surface; implemented passwordless flows create the user during the request step when needed (see "Passwordless creates on demand" below).
 
 1. Validate email + password
 2. Create user, attach unverified email identity, dispatch email verification
@@ -105,7 +105,7 @@ The user, their email identity, and a verification token are created together. T
 
 `MagicLink.request/2` and `EmailOtp.request/2` look up the requested identity through `Accounts.find_or_create_email_identity/1`. If a verified identity exists, they reuse it. If not, the helper inserts a fresh passwordless user plus an unverified identity, and the strategy issues the verification. There is no separate flag: enabling an implemented passwordless strategy is the opt-in. Hosts that want sign-in only must keep those strategies disabled (or wrap the request route with their own access check).
 
-`SmsOtp` and `Whatsapp` are currently registered metadata placeholders. Their default strategy actions fail closed until implemented.
+`PhoneOtp` is currently a registered metadata placeholder. Its default strategy actions fail closed until implemented.
 
 ### Sign-in
 

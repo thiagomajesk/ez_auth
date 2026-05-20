@@ -38,11 +38,11 @@ Each strategy section starts with:
 - **Reference:** N/A
 - **Module:** `EzAuth.Strategies.EmailOtp`
 
-### SMS OTP
+### Phone OTP
 
 - **Site:** N/A
 - **Reference:** N/A
-- **Module:** `EzAuth.Strategies.SmsOtp`
+- **Module:** `EzAuth.Strategies.PhoneOtp`
 
 ## Social
 

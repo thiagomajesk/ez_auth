@@ -39,7 +39,7 @@ defmodule EzAuth.Accounts do
   end
 
   @doc """
-  Creates a passwordless user with a phone identity (used by SMS OTP request flow).
+  Creates a passwordless user with a phone identity (used by phone OTP request flow).
   """
   def create_user_with_phone(phone) do
     Config.repo!().transact(fn ->
@@ -172,7 +172,7 @@ defmodule EzAuth.Accounts do
 
     insert_verification(identity.user, :phone, identity.value, token)
 
-    Sender.maybe_invoke(Config.sender(), :sms_otp, {identity.user, token})
+    Sender.maybe_invoke(Config.sender(), :phone_otp, {identity.user, token})
   end
 
   @doc """
@@ -242,7 +242,7 @@ defmodule EzAuth.Accounts do
   Verifies a short user code and consumes it.
 
   The code is the human-typeable secret sent out-of-band (recovery email,
-  SMS OTP). Because the code's entropy is low, the lookup is value-scoped
+  phone OTP). Because the code's entropy is low, the lookup is value-scoped
   to the identity it was issued for when the caller passes a value.
   """
   def verify_code(code, type, value) do

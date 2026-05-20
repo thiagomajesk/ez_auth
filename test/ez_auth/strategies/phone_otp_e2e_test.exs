@@ -1,4 +1,4 @@
-defmodule EzAuth.Strategies.SmsOtpE2ETest do
+defmodule EzAuth.Strategies.PhoneOtpE2ETest do
   use EzAuth.Test.DataCase, async: true
 
   import EzAuth.Test.ConnHelpers
@@ -6,7 +6,7 @@ defmodule EzAuth.Strategies.SmsOtpE2ETest do
   import EzAuth.TestConfig
   import Plug.Conn
 
-  alias EzAuth.Strategies.SmsOtp
+  alias EzAuth.Strategies.PhoneOtp
   alias EzAuth.Test.QueryHelpers
   alias EzAuth.TestRepo
 
@@ -21,7 +21,7 @@ defmodule EzAuth.Strategies.SmsOtpE2ETest do
       )
 
       assert {:ok, _conn, %{id: _user_id}} =
-               SmsOtp.request(build_session_conn(), %{
+               PhoneOtp.request(build_session_conn(), %{
                  "user" => %{"phone" => "+15551234567"}
                })
 
@@ -38,7 +38,7 @@ defmodule EzAuth.Strategies.SmsOtpE2ETest do
       {code, _verification} = insert_verification_code(user, :phone, "+15551234567")
 
       assert {:ok, conn, %{id: ^user_id}} =
-               SmsOtp.callback(build_session_conn(), %{"phone" => "+15551234567", "code" => code})
+               PhoneOtp.callback(build_session_conn(), %{"phone" => "+15551234567", "code" => code})
 
       assert get_session(conn, :user_token)
       assert QueryHelpers.fetch_identity!(TestRepo, "phone", "+15551234567").verified_at
@@ -48,7 +48,7 @@ defmodule EzAuth.Strategies.SmsOtpE2ETest do
       stub_config()
 
       assert {:error, :invalid_token} =
-               SmsOtp.callback(build_session_conn(), %{
+               PhoneOtp.callback(build_session_conn(), %{
                  "phone" => "+15551234567",
                  "code" => "bogus"
                })

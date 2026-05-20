@@ -1,4 +1,4 @@
-defmodule EzAuth.Strategies.SmsOtpTest do
+defmodule EzAuth.Strategies.PhoneOtpTest do
   use EzAuth.Test.MoxCase, async: true
 
   import EzAuth.Test.ConnHelpers
@@ -6,14 +6,14 @@ defmodule EzAuth.Strategies.SmsOtpTest do
 
   alias EzAuth.Accounts
   alias EzAuth.Auth
-  alias EzAuth.Strategies.SmsOtp
+  alias EzAuth.Strategies.PhoneOtp
 
   test "uses a post callback for code submission" do
-    assert SmsOtp.__meta__(:callback_methods) == [:post]
+    assert PhoneOtp.__meta__(:callback_methods) == [:post]
   end
 
   describe "request/2 and callback/2" do
-    test "requests an SMS OTP, signing up the user on demand if needed" do
+    test "requests a phone OTP, signing up the user on demand if needed" do
       stub_config()
       conn = build_session_conn()
       user = %{id: 1}
@@ -26,7 +26,7 @@ defmodule EzAuth.Strategies.SmsOtpTest do
       expect(Accounts, :request_phone_verification_code, fn ^identity -> :ok end)
 
       assert {:ok, ^conn, %{id: 1}} =
-               SmsOtp.request(conn, %{"user" => %{"phone" => "+15551234567"}})
+               PhoneOtp.request(conn, %{"user" => %{"phone" => "+15551234567"}})
     end
 
     test "verifies the code and signs the user in" do
@@ -43,7 +43,7 @@ defmodule EzAuth.Strategies.SmsOtpTest do
       end)
 
       assert {:ok, %{assigns: %{signed_in: true}}, %{id: 1}} =
-               SmsOtp.callback(conn, %{"phone" => "+15551234567", "code" => "123456"})
+               PhoneOtp.callback(conn, %{"phone" => "+15551234567", "code" => "123456"})
     end
 
     test "returns the verification failure reason" do
@@ -55,7 +55,7 @@ defmodule EzAuth.Strategies.SmsOtpTest do
       end)
 
       assert {:error, :invalid_token} =
-               SmsOtp.callback(conn, %{"phone" => "+15551234567", "code" => "123456"})
+               PhoneOtp.callback(conn, %{"phone" => "+15551234567", "code" => "123456"})
     end
   end
 end

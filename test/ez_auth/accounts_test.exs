@@ -438,7 +438,7 @@ defmodule EzAuth.AccountsTest do
       %{user: %User{id: user_id}} =
         identity = insert(:identity, provider: "phone", value: "+15551234567", verified_at: nil)
 
-      expect(Sender, :deliver, fn :sms_otp, {%User{id: ^user_id}, token} ->
+      expect(Sender, :deliver, fn :phone_otp, {%User{id: ^user_id}, token} ->
         assert token.type == :code
         assert {:ok, code} = Base.url_decode64(token.encoded_token, padding: false)
         assert code =~ ~r/^\d{6}$/

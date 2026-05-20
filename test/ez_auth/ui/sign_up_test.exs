@@ -76,7 +76,7 @@ defmodule EzAuth.UI.SignUpTest do
     end
 
     test "renders sign-in option buttons for non-credential strategies in config order" do
-      stub_config(strategies: [Strategies.Password, Strategies.MagicLink, Strategies.SmsOtp])
+      stub_config(strategies: [Strategies.Password, Strategies.MagicLink, Strategies.PhoneOtp])
 
       html = render_component(SignUp, id: "sign-up")
 
@@ -85,7 +85,7 @@ defmodule EzAuth.UI.SignUpTest do
       assert html =~ ~s(action="/sign-in")
       assert html =~ ~s(method="get")
       assert html =~ ~s(name="strategy" value="magic-link")
-      assert html =~ ~s(name="strategy" value="sms-otp")
+      assert html =~ ~s(name="strategy" value="phone-otp")
     end
 
     test "shows social brand buttons when social strategies are configured" do
@@ -102,7 +102,7 @@ defmodule EzAuth.UI.SignUpTest do
         strategies: [
           Strategies.Password,
           Strategies.MagicLink,
-          Strategies.SmsOtp,
+          Strategies.PhoneOtp,
           Strategies.Google,
           Strategies.Apple
         ]

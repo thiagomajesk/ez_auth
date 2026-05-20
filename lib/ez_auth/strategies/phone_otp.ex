@@ -1,8 +1,8 @@
-defmodule EzAuth.Strategies.SmsOtp do
+defmodule EzAuth.Strategies.PhoneOtp do
   @moduledoc false
 
   use EzAuth.Strategy,
-    provider: "sms_otp",
+    provider: "phone_otp",
     name: "phone",
     identity: :phone,
     kind: :passwordless,

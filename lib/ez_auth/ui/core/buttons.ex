@@ -15,6 +15,7 @@ defmodule EzAuth.UI.Core.Buttons do
   alias EzAuth.Config
   alias EzAuth.Strategy
   alias EzAuth.UI.Core
+  alias EzAuth.UI.Core.Icon
 
   @doc """
   Renders a form submit button with a trailing forward arrow.
@@ -129,7 +130,7 @@ defmodule EzAuth.UI.Core.Buttons do
       |> assign(:action, action)
       |> assign(:method, method)
       |> assign(:title, meta.name)
-      |> assign(:icon, icon_for(meta))
+      |> assign(:icon, Icon.strategy(meta))
       |> assign(:slug, Strategy.slug(assigns.strategy))
       |> assign(:label, translate("Continue with %{name}", name: meta.name))
 
@@ -148,12 +149,6 @@ defmodule EzAuth.UI.Core.Buttons do
     </.form>
     """
   end
-
-  defp icon_for(%{provider: "magic_link"}), do: "link"
-  defp icon_for(%{provider: "whatsapp"}), do: "whatsapp"
-  defp icon_for(%{kind: :social} = meta), do: meta.provider
-  defp icon_for(%{identity: :email}), do: "envelope"
-  defp icon_for(%{identity: :phone}), do: "phone"
 
   defp strategy_metadata(strategy) do
     case strategy.__meta__(:kind) do
