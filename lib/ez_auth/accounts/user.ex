@@ -8,6 +8,7 @@ defmodule EzAuth.Accounts.User do
   alias EzAuth.Accounts
   alias EzAuth.Accounts.Identity
   alias EzAuth.Accounts.Session
+  alias EzAuth.Accounts.Claim
   alias EzAuth.Accounts.Verification
   alias EzAuth.Config
 
@@ -25,6 +26,7 @@ defmodule EzAuth.Accounts.User do
     field(:password_confirmation, :string, virtual: true, redact: true)
 
     has_many(:sessions, Session)
+    has_many(:claims, Claim)
     has_many(:verifications, Verification)
     has_many(:identities, Identity, where: [verified_at: {:not, nil}])
 

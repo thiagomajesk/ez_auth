@@ -9,6 +9,7 @@ defmodule EzAuth.Accounts do
   alias EzAuth.Accounts.Session
   alias EzAuth.Accounts.Token
   alias EzAuth.Accounts.User
+  alias EzAuth.Accounts.Claim
   alias EzAuth.Accounts.Verification
   alias EzAuth.Config
   alias EzAuth.Sender
@@ -82,6 +83,21 @@ defmodule EzAuth.Accounts do
     token
   end
 
+  @doc """
+  Grants a claim to the user.
+  """
+  def grant_claim(%User{} = user, claim) do
+    case Config.repo!().one(Claim.claim_query(user, claim)) do
+      nil ->
+        user
+        |> Claim.changeset(claim)
+        |> Config.repo!().insert()
+
+      claim ->
+        {:ok, claim}
+    end
+  end
+
   def get_user_by_email(email) do
     Config.repo!().one(User.by_identity_query("email", email))
   end
@@ -117,6 +133,24 @@ defmodule EzAuth.Accounts do
       nil -> {:error, :not_found}
       identity -> {:ok, {identity.user, identity}}
     end
+  end
+
+  @doc """
+  Lists the user's granted claims.
+  """
+  def list_claims(user, scope \\ nil)
+
+  def list_claims(%User{} = user, nil) do
+    user
+    |> Claim.by_user_query()
+    |> Config.repo!().all()
+  end
+
+  def list_claims(%User{} = user, scope) do
+    user
+    |> Claim.by_user_query()
+    |> where([c], c.scope == ^scope)
+    |> Config.repo!().all()
   end
 
   def email_taken?(email) do
@@ -218,6 +252,13 @@ defmodule EzAuth.Accounts do
   end
 
   @doc """
+  Revokes a claim from the user.
+  """
+  def revoke_claim(%User{} = user, claim) do
+    Config.repo!().delete_all(Claim.claim_query(user, claim))
+  end
+
+  @doc """
   Updates the user's profile fields (name, username, metadata).
   """
   def update_user_profile(%User{} = user, attrs) do
@@ -309,4 +350,5 @@ defmodule EzAuth.Accounts do
         {:ok, Map.fetch!(changes, :delete)}
     end
   end
+
 end

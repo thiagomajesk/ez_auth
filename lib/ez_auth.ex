@@ -97,8 +97,15 @@ defmodule EzAuth do
   defp assign_current_scope(socket, session) do
     Phoenix.Component.assign_new(socket, :current_scope, fn ->
       case EzAuth.Accounts.get_user_by_session_token(session["user_token"]) do
-        :error -> nil
-        user -> UserScope.new(user)
+        :error ->
+          nil
+
+        nil ->
+          nil
+
+        user ->
+          claims = EzAuth.Accounts.list_claims(user)
+          UserScope.new(user, claims)
       end
     end)
   end

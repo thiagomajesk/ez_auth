@@ -7,6 +7,7 @@ defmodule EzAuth.Test.Factory do
   alias EzAuth.Accounts.Session
   alias EzAuth.Accounts.Token
   alias EzAuth.Accounts.User
+  alias EzAuth.Accounts.Claim
   alias EzAuth.Accounts.Verification
   alias EzAuth.TestRepo
 
@@ -64,6 +65,14 @@ defmodule EzAuth.Test.Factory do
       user: build(:user),
       token: :crypto.strong_rand_bytes(32),
       expires_at: DateTime.add(DateTime.utc_now(:second), 60, :day)
+    }
+  end
+
+  def claim_factory do
+    %Claim{
+      user: build(:user),
+      scope: "default",
+      value: sequence(:claim_value, &"claim_#{&1}")
     }
   end
 end

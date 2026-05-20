@@ -10,9 +10,13 @@ defmodule EzAuth.OnMountTest do
   describe "on_mount/4" do
     test ":assign_current_scope assigns the current scope from the session" do
       stub_config()
-      expect(Accounts, :get_user_by_session_token, fn "token" -> %{id: 1} end)
+      user = %{id: 1}
 
-      assert {:cont, %{assigns: %{current_scope: %UserScope{user: %{id: 1}}}}} =
+      expect(Accounts, :get_user_by_session_token, fn "token" -> user end)
+      expect(Accounts, :list_claims, fn ^user -> [%{scope: "default", value: "admin"}] end)
+
+      assert {:cont,
+              %{assigns: %{current_scope: %UserScope{user: ^user, claims: %{"default" => ["admin"]}}}}} =
                EzAuth.on_mount(
                  :assign_current_scope,
                  %{},

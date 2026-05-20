@@ -14,5 +14,13 @@ defmodule EzAuth.ScopesTest do
 
       assert %UserScope{user: ^user} = UserScope.new(user)
     end
+
+    test "wraps claims" do
+      user = %{id: 1}
+      claims = [%{scope: "default", value: "admin"}, %{scope: "billing", value: "write"}]
+
+      assert %UserScope{claims: %{"billing" => ["write"], "default" => ["admin"]}} =
+               UserScope.new(user, claims)
+    end
   end
 end

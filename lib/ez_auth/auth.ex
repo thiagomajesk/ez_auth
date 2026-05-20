@@ -17,8 +17,12 @@ defmodule EzAuth.Auth do
       :error ->
         assign(conn, :current_scope, nil)
 
+      nil ->
+        assign(conn, :current_scope, nil)
+
       user ->
-        assign(conn, :current_scope, UserScope.new(user))
+        claims = EzAuth.Accounts.list_claims(user)
+        assign(conn, :current_scope, UserScope.new(user, claims))
     end
   end
 

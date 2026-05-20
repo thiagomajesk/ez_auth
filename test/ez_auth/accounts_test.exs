@@ -179,6 +179,56 @@ defmodule EzAuth.AccountsTest do
     end
   end
 
+  describe "grant_claim/2 and revoke_claim/2" do
+    test "grants, lists, and revokes claims" do
+      base_config()
+      user = insert(:user)
+
+      assert {:ok, %{scope: "billing", value: "write"}} =
+               Accounts.grant_claim(user, "billing:write")
+
+      assert {:ok, %{scope: "default", value: "admin"}} = Accounts.grant_claim(user, "admin")
+
+      assert [%{scope: "billing", value: "write"}, %{scope: "default", value: "admin"}] =
+               Accounts.list_claims(user)
+
+      assert {1, _claims} = Accounts.revoke_claim(user, "admin")
+      assert [%{scope: "billing", value: "write"}] = Accounts.list_claims(user)
+    end
+
+    test "granting the same claim is idempotent" do
+      base_config()
+      user = insert(:user)
+
+      assert {:ok, first} = Accounts.grant_claim(user, "admin")
+      assert {:ok, second} = Accounts.grant_claim(user, "admin")
+
+      assert first.id == second.id
+      assert [%{scope: "default", value: "admin"}] = Accounts.list_claims(user)
+    end
+  end
+
+  describe "list_claims/1" do
+    test "returns an empty list when the user has no claims" do
+      base_config()
+      user = insert(:user)
+
+      assert Accounts.list_claims(user) == []
+    end
+  end
+
+  describe "list_claims/2" do
+    test "returns claims from the requested scope" do
+      base_config()
+      user = insert(:user)
+
+      Accounts.grant_claim(user, "billing:write")
+      Accounts.grant_claim(user, "default:admin")
+
+      assert [%{scope: "billing", value: "write"}] = Accounts.list_claims(user, "billing")
+    end
+  end
+
   describe "get_user_by_session_token/1" do
     test "returns :error for malformed tokens" do
       base_config()

@@ -62,11 +62,25 @@ Single-use challenges tied to an auth flow. Immutable after insert, except that 
 | `expires_at` | utc_datetime, NOT NULL | hard expiry after which the token is invalid |
 | `inserted_at` | utc_datetime, NOT NULL | record creation timestamp; no `updated_at` since rows are immutable |
 
+### Claims
+
+Authorization claims granted to a user. Claims are application-facing strings
+that hosts can check from `EzAuth.Scopes.UserScope` after authentication.
+
+| column | type | notes |
+|---|---|---|
+| `id` | bigint PK | auto-generated surrogate key |
+| `user_id` | bigint FK -> users, NOT NULL, cascade | owning user |
+| `scope` | string, NOT NULL, default `"default"` | claim namespace |
+| `value` | string, NOT NULL | permission or entitlement key inside the scope |
+| `inserted_at` | utc_datetime | record creation timestamp |
+| `updated_at` | utc_datetime | last update timestamp |
+
 ## Structure
 
 * `lib/ez_auth.ex`: top-level integration surface (route macros, LiveView on_mount, use macro)
 * `lib/ez_auth/`: core modules (accounts, auth, config, dispatcher, handler, sender, strategy, error_helpers)
-* `lib/ez_auth/accounts/`: Ecto schemas and persistence helpers (user, identity, session, token, verification)
+* `lib/ez_auth/accounts/`: Ecto schemas and persistence helpers (user, identity, session, token, verification, claim)
 * `lib/ez_auth/strategies/`: authentication strategy implementations and placeholders (password, magic link, email OTP, phone OTP, Apple, GitHub, Google, Microsoft)
 * `lib/ez_auth/scopes/`: context structs passed through the auth pipeline (user scope, sender scope)
 * `lib/ez_auth/ui/`: unstyled LiveComponents and function components for sign-in, sign-up, verification, recovery, and reset flows
@@ -221,6 +235,10 @@ Sign-out revokes the current session token and broadcasts a disconnect to any Li
 ### Sessions
 
 * When a user changes their password or an admin locks them out, the host app must revoke all their sessions and disconnect any open pages. EzAuth provides two primitives: `Accounts.revoke_user_sessions/1` deletes all session tokens from the database and returns them; `Auth.disconnect_sessions/2` takes the endpoint and token list and broadcasts disconnect messages to their LiveView sockets. Call both in sequence: tokens stop working immediately, and users see the sign-out without waiting for the next request. They're separate by design: the host controls *when* revocation happens based on its own business logic.
+
+### Claims
+
+* Claims are persisted under `auth.claims` and loaded into `EzAuth.Scopes.UserScope` grouped by scope when a session is fetched. Hosts interpret `current_scope.claims` in their own authorization layer; EzAuth does not choose redirects, status codes, or policy names for the host app.
 
 * `UI.TaskResetPassword` always revokes every session for the user and broadcasts disconnect on a successful reset. No opt-out. Recovery flows usually run because the user suspects compromise, so a reset that leaves prior sessions live defeats the point. Hosts wiring their own settings-style password change should default to the same.
 
